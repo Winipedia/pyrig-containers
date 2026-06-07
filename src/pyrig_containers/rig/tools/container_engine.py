@@ -3,7 +3,7 @@
 Wraps container engine commands and information.
 """
 
-from pyrig.rig.tools.base.tool import Tool, ToolGroup
+from pyrig.rig.tools.base.tool import Group, Tool
 
 
 class ContainerEngine(Tool):
@@ -24,7 +24,7 @@ class ContainerEngine(Tool):
 
     def group(self) -> str:
         """Returns the group the tool belongs to."""
-        return ToolGroup.TOOLING
+        return Group.TOOLING
 
     def image_url(self) -> str:
         """Return the badge image URL for this tool.
