@@ -221,7 +221,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         Returns:
             Image name in the form ``ghcr.io/<owner>/<project>``.
         """
-        owner = VersionController.I.repo_owner(check_repo_url=False)
+        owner = VersionController.I.repo_owner()
         project = PackageManager.I.project_name()
         return f"{self.container_registry()}/{owner}/{project}"
 
