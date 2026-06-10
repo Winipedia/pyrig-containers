@@ -37,7 +37,7 @@ class ContainerRegistry(Tool):
         Returns:
             The URL of the badge image as a string.
         """
-        return "https://img.shields.io/badge/GHCR-Container_Image-181717?logo=github&logoColor=white"
+        return "https://img.shields.io/badge/GHCR-Container_Image-black?logo=github&logoColor=white"
 
     def link_url(self) -> str:
         """Return the URL that the badge should link to for this tool.

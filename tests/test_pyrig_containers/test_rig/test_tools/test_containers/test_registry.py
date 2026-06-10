@@ -18,7 +18,7 @@ class TestContainerRegistry:
     def test_image_url(self) -> None:
         """Test method."""
         assert ContainerRegistry.I.image_url() == (
-            "https://img.shields.io/badge/GHCR-Container_Image-181717"
+            "https://img.shields.io/badge/GHCR-Container_Image-black"
             "?logo=github&logoColor=white"
         )
 
