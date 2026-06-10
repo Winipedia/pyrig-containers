@@ -43,6 +43,16 @@ and an automated step that publishes the image to the GitHub Container Registry
 (GHCR) on release. This page describes each piece; see the API Reference for the
 generated, code-level documentation.
 
+```bash
+uv add pyrig-containers --dev
+uv run pyrig mkroot
+```
+
+After this you might need to fix up the README.md and the index.md once because
+of the added badges and then you are ready to go.
+If you want to locally build images or do other container actions you will need
+to install podman locally as well.
+
 ## Components
 
 ### Containerfile generation

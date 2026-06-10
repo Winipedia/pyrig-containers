@@ -41,28 +41,25 @@ pyrig-containers is a [pyrig](https://github.com/Winipedia/pyrig) plugin that ad
 container support to a pyrig-managed Python project. Installed as a development
 dependency, it plugs into pyrig's config-generation and tooling system, so the
 files and CI steps needed to build and publish a container image are scaffolded,
-validated, and kept in sync automatically — the same way as the rest of your
-project.
+validated, and kept in sync automatically and is handled by pyrig.
 
 ## What it adds
 
-- **A production-ready Containerfile** — generated at the project root from a slim
-  Python base image, using uv for dependency installation, a non-root runtime
-  user, and a layer order tuned for build-cache reuse.
-- **Container tooling in the rig** — a Podman-based container engine and the
-  GitHub Container Registry (GHCR) are registered as first-class tools, each
-  contributing a Markdown badge to the README.
-- **Automated image publishing** — the deploy workflow gains a job that, after a
-  successful release, builds the image and pushes it to GHCR tagged with both the
-  released version and `latest`.
+- **A Containerfile** — A ready to use Containerfile.
+- **Container tooling in the rig** — Adds two tool classes that wrap podman
+and GHCR and add each a markdown badge.
+- **Automated image publishing** — adds a job to the deploy workflow that
+build and pushes the container image to the registry.
 
 ## Requirements
 
-pyrig-containers builds on pyrig and follows its conventions. Functionality is
-guaranteed only for the container engine wrapped by the plugin's tool class —
-Podman in this project. Images are built with Podman and published to GHCR
-using the repository's built-in GitHub token, so there are no extra registry
-credentials to configure.
+Just add the plugin and pyrig handles the rest for you.
+
+```bash
+uv add pyrig-containers --dev
+```
+
+If you want to build the image locally as well, you will need to install podman.
 
 ## Documentation
 
