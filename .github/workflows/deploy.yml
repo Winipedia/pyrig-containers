@@ -6,7 +6,6 @@ name: Deploy
     - Release
     types:
     - completed
-permissions: {}
 run-name: Deploy
 defaults:
   run:
@@ -36,8 +35,8 @@ jobs:
     - name: Build Documentation
       id: build-documentation
       run: uv run mkdocs build
-    - name: Enable Pages
-      id: enable-pages
+    - name: Configure Pages
+      id: configure-pages
       uses: actions/configure-pages@main
       with:
         token: ${{ secrets.REPO_TOKEN }}
@@ -68,3 +67,34 @@ jobs:
     - name: Publish Package
       id: publish-package
       run: uv publish --token ${{ secrets.PYPI_TOKEN }}
+  image:
+    permissions:
+      packages: write
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+    - name: Checkout Repository
+      id: checkout-repository
+      uses: actions/checkout@main
+    - name: Setup Package Manager
+      id: setup-package-manager
+      uses: astral-sh/setup-uv@main
+      with:
+        python-version: '3.14'
+    - name: Install Container Engine
+      id: install-container-engine
+      uses: redhat-actions/podman-install@main
+    - name: Login Container Registry
+      id: login-container-registry
+      run: podman login ghcr.io --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN
+        }}
+    - name: Build Image
+      id: build-image
+      run: podman build --file Containerfile --tag ghcr.io/Winipedia/pyrig-containers:v$(uv
+        version --short) --tag ghcr.io/Winipedia/pyrig-containers:latest .
+    - name: Push Image Version
+      id: push-image-version
+      run: podman push ghcr.io/Winipedia/pyrig-containers:v$(uv version --short)
+    - name: Push Image Latest
+      id: push-image-latest
+      run: podman push ghcr.io/Winipedia/pyrig-containers:latest
