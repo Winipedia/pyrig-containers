@@ -216,13 +216,14 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     def image_name(self) -> str:
         """Build the fully qualified image name without a tag.
 
-        Combines the registry host with the repository owner and project name.
+        Combines the registry host with the lowercased repository owner and
+        project name, as required by GHCR (image references must be lowercase).
 
         Returns:
             Image name in the form ``ghcr.io/<owner>/<project>``.
         """
-        owner = VersionController.I.repo_owner()
-        project = PackageManager.I.project_name()
+        owner = VersionController.I.repo_owner().lower()
+        project = PackageManager.I.project_name().lower()
         return f"{self.container_registry()}/{owner}/{project}"
 
     def container_registry(self) -> str:

@@ -83,7 +83,7 @@ class TestDeployWorkflowConfigFile:
         """Test method."""
         assert (
             DeployWorkflowConfigFile.I.image_name()
-            == "ghcr.io/Winipedia/pyrig-containers"
+            == "ghcr.io/winipedia/pyrig-containers"
         )
 
     def test_image_tag_version(self) -> None:
@@ -91,14 +91,14 @@ class TestDeployWorkflowConfigFile:
         version = DeployWorkflowConfigFile.I.insert_version()
         assert (
             DeployWorkflowConfigFile.I.image_tag_version()
-            == f"ghcr.io/Winipedia/pyrig-containers:{version}"
+            == f"ghcr.io/winipedia/pyrig-containers:{version}"
         )
 
     def test_image_tag_latest(self) -> None:
         """Test method."""
         assert (
             DeployWorkflowConfigFile.I.image_tag_latest()
-            == "ghcr.io/Winipedia/pyrig-containers:latest"
+            == "ghcr.io/winipedia/pyrig-containers:latest"
         )
 
     def test_insert_actor(self) -> None:
