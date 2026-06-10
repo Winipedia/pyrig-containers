@@ -4,9 +4,9 @@ Provides the ``DeployWorkflowConfigFile`` class, which generates the
 ``.github/workflows/deploy.yml`` workflow file. This workflow is the final
 step in the automated CI/CD pipeline and runs after a successful release.
 
-This plugin extends the base deploy workflow with an ``image`` job that builds
-the project's Containerfile with podman and pushes the resulting container image
-to the GitHub Container Registry (GHCR).
+This plugin extends the base deploy workflow with a ``container-image`` job that
+builds the project's Containerfile with podman and pushes the resulting container
+image to the GitHub Container Registry (GHCR).
 """
 
 from typing import Any
@@ -15,11 +15,10 @@ from pyrig.rig.configs.base.config_file import ConfigDict
 from pyrig.rig.configs.remote_version_control.workflows.deploy import (
     DeployWorkflowConfigFile as BaseDeployWorkflowConfigFile,
 )
-from pyrig.rig.tools.package_manager import PackageManager
-from pyrig.rig.tools.version_control.version_controller import VersionController
 
 from pyrig_containers.rig.configs.container_file import ContainerfileConfigFile
-from pyrig_containers.rig.tools.container_engine import ContainerEngine
+from pyrig_containers.rig.tools.containers.engine import ContainerEngine
+from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
 
 
 class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
@@ -31,7 +30,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         Combines the base jobs with the container image publish job.
 
         Returns:
-            Dict combining the base jobs with the image job.
+            Dict combining the base jobs with the container image job.
         """
         return {
             **super().jobs(),
@@ -116,7 +115,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             step_func=self.step_login_container_registry,
             run=str(
                 ContainerEngine.I.login_args(
-                    self.container_registry(),
+                    ContainerRegistry.I.host(),
                     username=self.insert_actor(),
                     password=self.insert_github_token(),
                 )
@@ -203,7 +202,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         Returns:
             Image reference in the form ``ghcr.io/<owner>/<project>:v<version>``.
         """
-        return f"{self.image_name()}:{self.insert_version()}"
+        return ContainerRegistry.I.image_tag(self.insert_version())
 
     def image_tag_latest(self) -> str:
         """Build the ``:latest`` image reference.
@@ -211,28 +210,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         Returns:
             Image reference in the form ``ghcr.io/<owner>/<project>:latest``.
         """
-        return f"{self.image_name()}:latest"
-
-    def image_name(self) -> str:
-        """Build the fully qualified image name without a tag.
-
-        Combines the registry host with the lowercased repository owner and
-        project name, as required by GHCR (image references must be lowercase).
-
-        Returns:
-            Image name in the form ``ghcr.io/<owner>/<project>``.
-        """
-        owner = VersionController.I.repo_owner().lower()
-        project = PackageManager.I.project_name().lower()
-        return f"{self.container_registry()}/{owner}/{project}"
-
-    def container_registry(self) -> str:
-        """Get the container registry host to publish to.
-
-        Returns:
-            ``"ghcr.io"`` (the GitHub Container Registry).
-        """
-        return "ghcr.io"
+        return ContainerRegistry.I.image_tag("latest")
 
     def insert_actor(self) -> str:
         """Get the expression that resolves to the workflow actor.

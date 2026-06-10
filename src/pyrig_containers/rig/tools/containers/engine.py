@@ -87,8 +87,8 @@ class ContainerEngine(Tool):
         Returns:
             Args for the ``podman build`` command.
         """
-        tag_flags = tuple(flag for tag in tags for flag in ("--tag", tag))
-        return self.args("build", "--file", containerfile, *tag_flags, context)
+        tag_args = (arg for tag in tags for arg in ("--tag", tag))
+        return self.args("build", "--file", containerfile, *tag_args, context)
 
     def push_args(self, tag: str) -> Args:
         """Build args to push a tagged image to its registry.

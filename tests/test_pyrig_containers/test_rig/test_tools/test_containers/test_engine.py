@@ -1,7 +1,7 @@
 """module."""
 
-from pyrig_containers.rig.tools import container_engine
-from pyrig_containers.rig.tools.container_engine import ContainerEngine
+from pyrig_containers.rig.tools.containers import engine
+from pyrig_containers.rig.tools.containers.engine import ContainerEngine
 
 
 class TestContainerEngine:
@@ -70,7 +70,7 @@ class TestContainerEngine:
 def test_module_docstring() -> None:
     """Test module docstring."""
     assert (
-        container_engine.__doc__
+        engine.__doc__
         == """Container engine wrapper.
 
 Wraps container engine commands and information.

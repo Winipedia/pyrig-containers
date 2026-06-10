@@ -1,6 +1,6 @@
 """module."""
 
-from pyrig_containers.rig.configs.remote_version_control.workflows.deploy import (
+from pyrig.rig.configs.remote_version_control.workflows.deploy import (
     DeployWorkflowConfigFile,
 )
 
@@ -73,17 +73,6 @@ class TestDeployWorkflowConfigFile:
         step = DeployWorkflowConfigFile.I.step_push_image_latest()
         assert step["run"] == (
             f"podman push {DeployWorkflowConfigFile.I.image_tag_latest()}"
-        )
-
-    def test_container_registry(self) -> None:
-        """Test method."""
-        assert DeployWorkflowConfigFile.I.container_registry() == "ghcr.io"
-
-    def test_image_name(self) -> None:
-        """Test method."""
-        assert (
-            DeployWorkflowConfigFile.I.image_name()
-            == "ghcr.io/winipedia/pyrig-containers"
         )
 
     def test_image_tag_version(self) -> None:
