@@ -35,29 +35,28 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         """
         return {
             **super().jobs(),
-            **self.job_image(),
+            **self.job_container_image(),
         }
 
-    def job_image(self) -> ConfigDict:
+    def job_container_image(self) -> ConfigDict:
         """Build the job that builds and pushes the container image to GHCR.
 
-        Requests ``packages: write`` (required to push to GHCR) and
-        ``contents: read`` permissions at the job level. The job runs only when
-        the triggering workflow run succeeded. Steps are provided by
-        :meth:`steps_image`.
+        Requests ``packages: write`` permission (required to push to GHCR) at
+        the job level. The job runs only when the triggering workflow run
+        succeeded. Steps are provided by :meth:`steps_container_image`.
 
         Returns:
             Dict mapping the derived job ID to its configuration.
         """
         return self.job(
-            job_func=self.job_image,
+            job_func=self.job_container_image,
             permissions={"packages": "write"},
-            steps=self.steps_image(),
+            steps=self.steps_container_image(),
             if_condition=self.if_workflow_run_is_success(),
         )
 
-    def steps_image(self) -> list[dict[str, Any]]:
-        """Build the ordered steps for the publish-image job.
+    def steps_container_image(self) -> list[dict[str, Any]]:
+        """Build the ordered steps for the publish-container-image job.
 
         Combines core setup (checkout and package manager) with podman
         installation, registry login, image build, and image push steps.

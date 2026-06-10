@@ -11,22 +11,22 @@ class TestDeployWorkflowConfigFile:
     def test_jobs(self) -> None:
         """Test method."""
         jobs = DeployWorkflowConfigFile.I.jobs()
-        # base documentation job is preserved and the image job is added
+        # base documentation job is preserved and the container image job is added
         assert "documentation" in jobs
-        assert "image" in jobs
+        assert "container-image" in jobs
 
-    def test_job_image(self) -> None:
+    def test_job_container_image(self) -> None:
         """Test method."""
-        job = DeployWorkflowConfigFile.I.job_image()
-        assert set(job) == {"image"}
-        config = job["image"]
+        job = DeployWorkflowConfigFile.I.job_container_image()
+        assert set(job) == {"container-image"}
+        config = job["container-image"]
         assert config["permissions"] == {"packages": "write"}
         assert config["if"] == DeployWorkflowConfigFile.I.if_workflow_run_is_success()
-        assert config["steps"] == DeployWorkflowConfigFile.I.steps_image()
+        assert config["steps"] == DeployWorkflowConfigFile.I.steps_container_image()
 
-    def test_steps_image(self) -> None:
+    def test_steps_container_image(self) -> None:
         """Test method."""
-        steps = DeployWorkflowConfigFile.I.steps_image()
+        steps = DeployWorkflowConfigFile.I.steps_container_image()
         ids = [step["id"] for step in steps]
         assert ids == [
             "checkout-repository",

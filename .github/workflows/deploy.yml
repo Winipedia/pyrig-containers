@@ -67,7 +67,7 @@ jobs:
     - name: Publish Package
       id: publish-package
       run: uv publish --token ${{ secrets.PYPI_TOKEN }}
-  image:
+  container-image:
     permissions:
       packages: write
     runs-on: ubuntu-latest
