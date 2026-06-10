@@ -70,13 +70,13 @@ class ContainerRegistry(Tool):
         return "ghcr.io"
 
     def image_name(self) -> str:
-        """Build the project's fully qualified image reference without a tag.
+        """Build the project's fully qualified image name without a tag.
 
         Combines the registry host with the lowercased repository owner and
-        project name, as required by GHCR (image references must be lowercase).
+        project name, as required by GHCR (image names must be lowercase).
 
         Returns:
-            Image reference in the form ``ghcr.io/<owner>/<project>``.
+            Image name in the form ``ghcr.io/<owner>/<project>``.
         """
         owner = VersionController.I.repo_owner().lower()
         project = PackageManager.I.project_name().lower()

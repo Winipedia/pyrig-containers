@@ -34,3 +34,50 @@
 > A pyrig plugin to integrate containers.
 
 ---
+
+## Overview
+
+pyrig-containers integrates containers into a pyrig-managed project through three
+pieces: generation of a `Containerfile`, container tooling registered in the rig,
+and an automated step that publishes the image to the GitHub Container Registry
+(GHCR) on release. This page describes each piece; see the API Reference for the
+generated, code-level documentation.
+
+## Components
+
+### Containerfile generation
+
+`ContainerfileConfigFile` generates a `Containerfile` at the project root. It starts
+from a slim Python base image matching the project's supported Python version,
+installs `uv` from its official image, and copies project metadata and the lock
+file before the source tree to maximise build-cache reuse. The image runs as a
+non-root `appuser` (UID 1000) and installs only non-development dependencies.
+Functionality is guaranteed for Podman, the container engine the plugin wraps.
+
+### Container engine
+
+`ContainerEngine` wraps Podman. It provides the command arguments used to
+authenticate with a registry, to build and tag an image from the
+Containerfile, and to push an individual tag. It contributes a Podman
+badge to the project's README.
+
+### Container registry
+
+`ContainerRegistry` models the GitHub Container Registry. It owns the registry host
+(`ghcr.io`), composes the project's lowercased image name
+(`ghcr.io/<owner>/<project>`, since GHCR requires lowercase names), and builds
+tagged image references from it. It contributes a GHCR badge to the
+project's README.
+
+### Deploy workflow
+
+The deploy workflow is extended with a `container-image` job. After a successful
+release it installs Podman, logs in to GHCR using the workflow actor and the
+automatic `GITHUB_TOKEN`, builds the image from the Containerfile, and pushes it
+under two tags: the released version (`:v<version>`) and `:latest`. The job requests
+only `packages: write` permission.
+
+## API Reference
+
+For class- and method-level details, see the [API](api.md) Reference, which is generated
+automatically from the source.
