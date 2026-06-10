@@ -3,6 +3,8 @@
 Wraps container engine commands and information.
 """
 
+from collections.abc import Iterable
+
 from pyrig.core.subprocesses import Args
 from pyrig.rig.tools.base.tool import Group, Tool
 
@@ -55,13 +57,16 @@ class ContainerEngine(Tool):
         """
         return ()
 
-    def login_args(self, registry: str, *, username: str, password: str) -> Args:
+    def login_args(
+        self, *args: str, registry: str, username: str, password: str
+    ) -> Args:
         """Build args to authenticate the container engine with a registry.
 
         Constructs ``podman login <registry> --username <username>
         --password <password>``.
 
         Args:
+            *args: Additional arguments appended to the command.
             registry: Registry host to authenticate against (e.g. ``ghcr.io``).
             username: Account name to log in as.
             password: Token or password for the account.
@@ -70,36 +75,42 @@ class ContainerEngine(Tool):
             Args for the ``podman login`` command.
         """
         return self.args(
-            "login", registry, "--username", username, "--password", password
+            "login", registry, "--username", username, "--password", password, *args
         )
 
-    def build_args(self, *tags: str, containerfile: str, context: str = ".") -> Args:
-        """Build args to build and tag an image from a Containerfile.
+    def build_args(
+        self, *args: str, tags: Iterable[str] = (), context: str = "."
+    ) -> Args:
+        """Build args to build and tag an image from the build context.
 
-        Constructs ``podman build --file <containerfile> --tag <tag>...
-        <context>``, repeating ``--tag`` for each provided tag.
+        Constructs ``podman build --tag <tag>... <context>``, repeating
+        ``--tag`` for each provided tag. No ``--file`` is passed, so podman
+        discovers the ``Containerfile`` in the build context automatically.
 
         Args:
-            *tags: Image references to tag the built image with.
-            containerfile: Path to the Containerfile/Dockerfile to build.
+            *args: Additional arguments appended before the context (e.g.
+                ``--file`` to point at a specific Containerfile, or
+                ``--no-cache``).
+            tags: Image references to tag the built image with.
             context: Build context directory. Defaults to the current directory.
 
         Returns:
             Args for the ``podman build`` command.
         """
         tag_args = (arg for tag in tags for arg in ("--tag", tag))
-        return self.args("build", "--file", containerfile, *tag_args, context)
+        return self.args("build", *tag_args, *args, context)
 
-    def push_args(self, tag: str) -> Args:
+    def push_args(self, *args: str, tag: str) -> Args:
         """Build args to push a tagged image to its registry.
 
         Constructs ``podman push <tag>``.
 
         Args:
+            *args: Additional arguments appended to the command.
             tag: Fully qualified image reference to push (e.g.
                 ``ghcr.io/owner/repo:latest``).
 
         Returns:
             Args for the ``podman push`` command.
         """
-        return self.args("push", tag)
+        return self.args("push", tag, *args)

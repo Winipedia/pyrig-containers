@@ -56,8 +56,7 @@ class TestDeployWorkflowConfigFile:
         """Test method."""
         step = DeployWorkflowConfigFile.I.step_build_image()
         assert step["run"] == (
-            "podman build --file Containerfile "
-            f"--tag {DeployWorkflowConfigFile.I.image_tag_version()} "
+            f"podman build --tag {DeployWorkflowConfigFile.I.image_tag_version()} "
             f"--tag {DeployWorkflowConfigFile.I.image_tag_latest()} ."
         )
 

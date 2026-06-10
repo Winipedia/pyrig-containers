@@ -74,8 +74,7 @@ project's README.
 The deploy workflow is extended with a `container-image` job. After a successful
 release it installs Podman, logs in to GHCR using the workflow actor and the
 automatic `GITHUB_TOKEN`, builds the image from the Containerfile, and pushes it
-under two tags: the released version (`:v<version>`) and `:latest`. The job requests
-only `packages: write` permission.
+under two tags: the released version (`:<version>`) and `:latest`.
 
 ## API Reference
 

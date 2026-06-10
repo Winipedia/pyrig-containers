@@ -37,34 +37,52 @@ class TestContainerEngine:
     def test_login_args(self) -> None:
         """Test method."""
         result = ContainerEngine.I.login_args(
-            "ghcr.io",
+            registry="ghcr.io",
             username="user",
             password="token",  # noqa: S106  # nosec: B106
         )
-        assert str(result) == ("podman login ghcr.io --username user --password token")
+        assert str(result) == "podman login ghcr.io --username user --password token"
+
+    def test_login_args_extra_args(self) -> None:
+        """Test method."""
+        result = ContainerEngine.I.login_args(
+            "--tls-verify=false",
+            registry="ghcr.io",
+            username="user",
+            password="token",  # noqa: S106  # nosec: B106
+        )
+        assert str(result) == (
+            "podman login ghcr.io --username user --password token --tls-verify=false"
+        )
 
     def test_build_args(self) -> None:
         """Test method."""
-        result = ContainerEngine.I.build_args(
-            "image:v1.0.0", "image:latest", containerfile="Containerfile"
-        )
-        assert str(result) == (
-            "podman build --file Containerfile --tag image:v1.0.0 --tag image:latest ."
-        )
+        result = ContainerEngine.I.build_args(tags=("image:v1.0.0", "image:latest"))
+        assert str(result) == ("podman build --tag image:v1.0.0 --tag image:latest .")
 
     def test_build_args_custom_context(self) -> None:
         """Test method."""
-        result = ContainerEngine.I.build_args(
-            "image:latest", containerfile="Containerfile", context="src"
-        )
-        assert str(result) == (
-            "podman build --file Containerfile --tag image:latest src"
-        )
+        result = ContainerEngine.I.build_args(tags=("image:latest",), context="src")
+        assert str(result) == "podman build --tag image:latest src"
+
+    def test_build_args_extra_args(self) -> None:
+        """Test method."""
+        result = ContainerEngine.I.build_args("--no-cache", tags=("image:latest",))
+        assert str(result) == "podman build --tag image:latest --no-cache ."
 
     def test_push_args(self) -> None:
         """Test method."""
-        result = ContainerEngine.I.push_args("ghcr.io/owner/repo:latest")
+        result = ContainerEngine.I.push_args(tag="ghcr.io/owner/repo:latest")
         assert str(result) == "podman push ghcr.io/owner/repo:latest"
+
+    def test_push_args_extra_args(self) -> None:
+        """Test method."""
+        result = ContainerEngine.I.push_args(
+            "--tls-verify=false", tag="ghcr.io/owner/repo:latest"
+        )
+        assert str(result) == (
+            "podman push ghcr.io/owner/repo:latest --tls-verify=false"
+        )
 
 
 def test_module_docstring() -> None:

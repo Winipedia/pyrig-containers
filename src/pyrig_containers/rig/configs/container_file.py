@@ -15,7 +15,8 @@ class ContainerfileConfigFile(StringConfigFile):
 
     Produces a Containerfile with a Python slim base image, uv as the package
     manager, a non-root runtime user (appuser, UID 1000), and layer ordering
-    optimized for cache reuse. Compatible with Docker, Podman, and buildah.
+    optimized for cache reuse. Guaranteed to work with the container engine this
+    plugin wraps.
     """
 
     def stem(self) -> str:
@@ -51,8 +52,7 @@ class ContainerfileConfigFile(StringConfigFile):
 
         Produces an optimized layer order so that infrequently changing files
         (project metadata and lock file) are copied before the source tree is
-        added. This maximizes Docker/Podman build cache reuse when only source
-        code changes.
+        added. This maximizes build cache reuse when only source code changes.
 
         Returns:
             List of Containerfile instruction strings followed by a trailing

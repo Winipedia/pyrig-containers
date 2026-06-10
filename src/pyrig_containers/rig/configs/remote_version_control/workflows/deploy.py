@@ -16,10 +16,8 @@ from pyrig.rig.configs.remote_version_control.workflows.deploy import (
     DeployWorkflowConfigFile as BaseDeployWorkflowConfigFile,
 )
 
-from pyrig_containers.rig.configs.container_file import ContainerfileConfigFile
 from pyrig_containers.rig.tools.containers.engine import ContainerEngine
 from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
-from pyrig_containers.rig.tools.package_manager import PackageManager
 
 
 class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
@@ -116,7 +114,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             step_func=self.step_login_container_registry,
             run=str(
                 ContainerEngine.I.login_args(
-                    ContainerRegistry.I.host(),
+                    registry=ContainerRegistry.I.host(),
                     username=self.insert_actor(),
                     password=self.insert_github_token(),
                 )
@@ -129,10 +127,11 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         *,
         step: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Build a step that builds the container image from the Containerfile.
+        """Build a step that builds the container image.
 
-        Builds the project's Containerfile and tags the resulting image with
-        both the versioned tag (``:v<version>``) and ``:latest``.
+        Builds the ``Containerfile`` in the build context (the project root,
+        discovered automatically by podman) and tags the resulting image with
+        both the versioned tag (``:<version>``) and ``:latest``.
 
         Args:
             step: Additional keys to merge into the step configuration.
@@ -144,9 +143,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             step_func=self.step_build_image,
             run=str(
                 ContainerEngine.I.build_args(
-                    self.image_tag_version(),
-                    self.image_tag_latest(),
-                    containerfile=ContainerfileConfigFile.I.path().as_posix(),
+                    tags=(self.image_tag_version(), self.image_tag_latest()),
                 )
             ),
             step=step,
@@ -159,7 +156,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     ) -> dict[str, Any]:
         """Build a step that pushes the versioned image tag to GHCR.
 
-        Pushes the ``:v<version>`` tag built by :meth:`step_build_image`.
+        Pushes the ``:<version>`` tag built by :meth:`step_build_image`.
 
         Args:
             step: Additional keys to merge into the step configuration.
@@ -169,7 +166,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         """
         return self.step(
             step_func=self.step_push_image_version,
-            run=str(ContainerEngine.I.push_args(self.image_tag_version())),
+            run=str(ContainerEngine.I.push_args(tag=self.image_tag_version())),
             step=step,
         )
 
@@ -190,25 +187,22 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         """
         return self.step(
             step_func=self.step_push_image_latest,
-            run=str(ContainerEngine.I.push_args(self.image_tag_latest())),
+            run=str(ContainerEngine.I.push_args(tag=self.image_tag_latest())),
             step=step,
         )
 
     def image_tag_version(self) -> str:
         """Build the versioned image reference.
 
-        Resolves the project version at workflow execution time with
-        ``$(uv version --short)``. Container image tags conventionally use the
-        bare version, without the leading ``v`` that Git tags carry, so the tag
-        is built directly from the version (e.g. ``1.2.3``) rather than from the
-        Git-decorated :meth:`insert_version`.
+        Tags the image with the bare project version, resolved at workflow
+        execution time via :meth:`insert_version` (``$(uv version --short)``).
+        Container image tags use the bare version, with no leading ``v`` prefix
+        (e.g. ``1.2.3``).
 
         Returns:
             Image reference in the form ``ghcr.io/<owner>/<project>:<version>``.
         """
-        return ContainerRegistry.I.image_tag(
-            f"$({PackageManager.I.version_short_args()})"
-        )
+        return ContainerRegistry.I.image_tag(self.insert_version())
 
     def image_tag_latest(self) -> str:
         """Build the ``:latest`` image reference.
