@@ -77,10 +77,9 @@ class TestDeployWorkflowConfigFile:
 
     def test_image_tag_version(self) -> None:
         """Test method."""
-        version = DeployWorkflowConfigFile.I.insert_version()
         assert (
             DeployWorkflowConfigFile.I.image_tag_version()
-            == f"ghcr.io/winipedia/pyrig-containers:{version}"
+            == "ghcr.io/winipedia/pyrig-containers:$(uv version --short)"
         )
 
     def test_image_tag_latest(self) -> None:

@@ -90,11 +90,11 @@ jobs:
         }}
     - name: Build Image
       id: build-image
-      run: podman build --file Containerfile --tag ghcr.io/winipedia/pyrig-containers:v$(uv
+      run: podman build --file Containerfile --tag ghcr.io/winipedia/pyrig-containers:$(uv
         version --short) --tag ghcr.io/winipedia/pyrig-containers:latest .
     - name: Push Image Version
       id: push-image-version
-      run: podman push ghcr.io/winipedia/pyrig-containers:v$(uv version --short)
+      run: podman push ghcr.io/winipedia/pyrig-containers:$(uv version --short)
     - name: Push Image Latest
       id: push-image-latest
       run: podman push ghcr.io/winipedia/pyrig-containers:latest

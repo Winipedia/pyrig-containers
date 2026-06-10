@@ -19,6 +19,7 @@ from pyrig.rig.configs.remote_version_control.workflows.deploy import (
 from pyrig_containers.rig.configs.container_file import ContainerfileConfigFile
 from pyrig_containers.rig.tools.containers.engine import ContainerEngine
 from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
+from pyrig_containers.rig.tools.package_manager import PackageManager
 
 
 class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
@@ -196,13 +197,18 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     def image_tag_version(self) -> str:
         """Build the versioned image reference.
 
-        Resolves the project version at workflow execution time via
-        :meth:`insert_version` (``v$(uv version --short)``).
+        Resolves the project version at workflow execution time with
+        ``$(uv version --short)``. Container image tags conventionally use the
+        bare version, without the leading ``v`` that Git tags carry, so the tag
+        is built directly from the version (e.g. ``1.2.3``) rather than from the
+        Git-decorated :meth:`insert_version`.
 
         Returns:
-            Image reference in the form ``ghcr.io/<owner>/<project>:v<version>``.
+            Image reference in the form ``ghcr.io/<owner>/<project>:<version>``.
         """
-        return ContainerRegistry.I.image_tag(self.insert_version())
+        return ContainerRegistry.I.image_tag(
+            f"$({PackageManager.I.version_short_args()})"
+        )
 
     def image_tag_latest(self) -> str:
         """Build the ``:latest`` image reference.
