@@ -33,9 +33,9 @@ class TestDeployWorkflowConfigFile:
             "setup-package-manager",
             "install-container-engine",
             "login-container-registry",
-            "build-image",
-            "push-image-version",
-            "push-image-latest",
+            "build-container-image",
+            "push-container-image-version",
+            "push-container-image-latest",
         ]
 
     def test_step_install_container_engine(self) -> None:
@@ -52,39 +52,38 @@ class TestDeployWorkflowConfigFile:
             "--password ${{ secrets.GITHUB_TOKEN }}"
         )
 
-    def test_step_build_image(self) -> None:
+    def test_step_build_container_image(self) -> None:
         """Test method."""
-        step = DeployWorkflowConfigFile.I.step_build_image()
+        step = DeployWorkflowConfigFile.I.step_build_container_image()
+        version = DeployWorkflowConfigFile.I.container_image_tag_version()
+        latest = DeployWorkflowConfigFile.I.container_image_tag_latest()
+        assert step["run"] == f"podman build --tag {version} --tag {latest} ."
+
+    def test_step_push_container_image_version(self) -> None:
+        """Test method."""
+        step = DeployWorkflowConfigFile.I.step_push_container_image_version()
         assert step["run"] == (
-            f"podman build --tag {DeployWorkflowConfigFile.I.image_tag_version()} "
-            f"--tag {DeployWorkflowConfigFile.I.image_tag_latest()} ."
+            f"podman push {DeployWorkflowConfigFile.I.container_image_tag_version()}"
         )
 
-    def test_step_push_image_version(self) -> None:
+    def test_step_push_container_image_latest(self) -> None:
         """Test method."""
-        step = DeployWorkflowConfigFile.I.step_push_image_version()
+        step = DeployWorkflowConfigFile.I.step_push_container_image_latest()
         assert step["run"] == (
-            f"podman push {DeployWorkflowConfigFile.I.image_tag_version()}"
+            f"podman push {DeployWorkflowConfigFile.I.container_image_tag_latest()}"
         )
 
-    def test_step_push_image_latest(self) -> None:
-        """Test method."""
-        step = DeployWorkflowConfigFile.I.step_push_image_latest()
-        assert step["run"] == (
-            f"podman push {DeployWorkflowConfigFile.I.image_tag_latest()}"
-        )
-
-    def test_image_tag_version(self) -> None:
+    def test_container_image_tag_version(self) -> None:
         """Test method."""
         assert (
-            DeployWorkflowConfigFile.I.image_tag_version()
+            DeployWorkflowConfigFile.I.container_image_tag_version()
             == "ghcr.io/winipedia/pyrig-containers:$(uv version --short)"
         )
 
-    def test_image_tag_latest(self) -> None:
+    def test_container_image_tag_latest(self) -> None:
         """Test method."""
         assert (
-            DeployWorkflowConfigFile.I.image_tag_latest()
+            DeployWorkflowConfigFile.I.container_image_tag_latest()
             == "ghcr.io/winipedia/pyrig-containers:latest"
         )
 

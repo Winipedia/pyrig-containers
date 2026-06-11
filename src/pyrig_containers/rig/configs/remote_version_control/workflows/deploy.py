@@ -67,9 +67,9 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             *self.steps_core_setup(),
             self.step_install_container_engine(),
             self.step_login_container_registry(),
-            self.step_build_image(),
-            self.step_push_image_version(),
-            self.step_push_image_latest(),
+            self.step_build_container_image(),
+            self.step_push_container_image_version(),
+            self.step_push_container_image_latest(),
         ]
 
     def step_install_container_engine(
@@ -122,7 +122,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             step=step,
         )
 
-    def step_build_image(
+    def step_build_container_image(
         self,
         *,
         step: dict[str, Any] | None = None,
@@ -140,23 +140,26 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             Step that runs ``podman build``.
         """
         return self.step(
-            step_func=self.step_build_image,
+            step_func=self.step_build_container_image,
             run=str(
                 ContainerEngine.I.build_args(
-                    tags=(self.image_tag_version(), self.image_tag_latest()),
+                    tags=(
+                        self.container_image_tag_version(),
+                        self.container_image_tag_latest(),
+                    ),
                 )
             ),
             step=step,
         )
 
-    def step_push_image_version(
+    def step_push_container_image_version(
         self,
         *,
         step: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Build a step that pushes the versioned image tag to GHCR.
 
-        Pushes the ``:<version>`` tag built by :meth:`step_build_image`.
+        Pushes the ``:<version>`` tag built by :meth:`step_build_container_image`.
 
         Args:
             step: Additional keys to merge into the step configuration.
@@ -165,19 +168,21 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             Step that runs ``podman push`` for the versioned tag.
         """
         return self.step(
-            step_func=self.step_push_image_version,
-            run=str(ContainerEngine.I.push_args(tag=self.image_tag_version())),
+            step_func=self.step_push_container_image_version,
+            run=str(
+                ContainerEngine.I.push_args(tag=self.container_image_tag_version())
+            ),
             step=step,
         )
 
-    def step_push_image_latest(
+    def step_push_container_image_latest(
         self,
         *,
         step: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Build a step that pushes the ``:latest`` image tag to GHCR.
 
-        Pushes the ``:latest`` tag built by :meth:`step_build_image`.
+        Pushes the ``:latest`` tag built by :meth:`step_build_container_image`.
 
         Args:
             step: Additional keys to merge into the step configuration.
@@ -186,12 +191,12 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             Step that runs ``podman push`` for the ``:latest`` tag.
         """
         return self.step(
-            step_func=self.step_push_image_latest,
-            run=str(ContainerEngine.I.push_args(tag=self.image_tag_latest())),
+            step_func=self.step_push_container_image_latest,
+            run=str(ContainerEngine.I.push_args(tag=self.container_image_tag_latest())),
             step=step,
         )
 
-    def image_tag_version(self) -> str:
+    def container_image_tag_version(self) -> str:
         """Build the versioned image reference.
 
         Tags the image with the bare project version, resolved at workflow
@@ -204,7 +209,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         """
         return ContainerRegistry.I.image_tag(self.insert_version())
 
-    def image_tag_latest(self) -> str:
+    def container_image_tag_latest(self) -> str:
         """Build the ``:latest`` image reference.
 
         Returns:

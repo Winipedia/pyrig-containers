@@ -88,13 +88,13 @@ jobs:
       id: login-container-registry
       run: podman login ghcr.io --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN
         }}
-    - name: Build Image
-      id: build-image
+    - name: Build Container Image
+      id: build-container-image
       run: podman build --tag ghcr.io/winipedia/pyrig-containers:$(uv version --short)
         --tag ghcr.io/winipedia/pyrig-containers:latest .
-    - name: Push Image Version
-      id: push-image-version
+    - name: Push Container Image Version
+      id: push-container-image-version
       run: podman push ghcr.io/winipedia/pyrig-containers:$(uv version --short)
-    - name: Push Image Latest
-      id: push-image-latest
+    - name: Push Container Image Latest
+      id: push-container-image-latest
       run: podman push ghcr.io/winipedia/pyrig-containers:latest
