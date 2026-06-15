@@ -50,7 +50,6 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             job_func=self.job_container_image,
             permissions={"packages": "write"},
             steps=self.steps_container_image(),
-            if_condition=self.if_workflow_run_is_success(),
         )
 
     def steps_container_image(self) -> list[dict[str, Any]]:
