@@ -206,7 +206,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         Returns:
             Image reference in the form ``ghcr.io/<owner>/<project>:<version>``.
         """
-        return ContainerRegistry.I.image_tag(self.insert_version())
+        return ContainerRegistry.I.image_tag(self.shell_insert_version())
 
     def container_image_tag_latest(self) -> str:
         """Build the ``:latest`` image reference.
@@ -222,4 +222,4 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         Returns:
             GitHub Actions expression for ``github.actor``.
         """
-        return self.insert_var("github.actor")
+        return self.insert_expression("github.actor")
