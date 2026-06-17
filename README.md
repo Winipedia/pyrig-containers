@@ -57,6 +57,7 @@ Just add the plugin and pyrig handles the rest for you.
 
 ```bash
 uv add pyrig-containers --dev
+uv run pyrig sync
 ```
 
 If you want to build the image locally as well, you will need to install podman.

@@ -45,7 +45,7 @@ generated, code-level documentation.
 
 ```bash
 uv add pyrig-containers --dev
-uv run pyrig mkroot
+uv run pyrig sync
 ```
 
 After this you might need to fix up the README.md and the index.md once because
