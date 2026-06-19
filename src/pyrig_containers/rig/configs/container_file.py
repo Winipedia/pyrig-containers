@@ -5,9 +5,10 @@ from pathlib import Path
 
 from pyrig.rig.configs.base.string_ import StringConfigFile
 from pyrig.rig.configs.license import LicenseConfigFile
-from pyrig.rig.configs.pyproject import PyprojectConfigFile
-from pyrig.rig.configs.readme import ReadmeConfigFile
-from pyrig.rig.tools.package_manager import PackageManager
+from pyrig_dev.rig.configs.pyproject import PyprojectConfigFile
+from pyrig_dev.rig.configs.readme import ReadmeConfigFile
+
+from pyrig_containers.rig.tools.package_manager import PackageManager
 
 
 class ContainerfileConfigFile(StringConfigFile):

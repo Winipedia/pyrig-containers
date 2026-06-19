@@ -12,7 +12,7 @@ image to the GitHub Container Registry (GHCR).
 from typing import Any
 
 from pyrig.rig.configs.base.config_file import ConfigDict
-from pyrig.rig.configs.remote_version_control.workflows.deploy import (
+from pyrig_dev.rig.configs.remote_version_control.workflows.deploy import (
     DeployWorkflowConfigFile as BaseDeployWorkflowConfigFile,
 )
 

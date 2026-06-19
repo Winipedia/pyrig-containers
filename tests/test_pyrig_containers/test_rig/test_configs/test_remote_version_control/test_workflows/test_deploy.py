@@ -1,6 +1,6 @@
 """module."""
 
-from pyrig.rig.configs.remote_version_control.workflows.deploy import (
+from pyrig_dev.rig.configs.remote_version_control.workflows.deploy import (
     DeployWorkflowConfigFile,
 )
 
