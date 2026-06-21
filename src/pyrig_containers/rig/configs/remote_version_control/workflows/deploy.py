@@ -11,7 +11,6 @@ image to the GitHub Container Registry (GHCR).
 
 from typing import Any
 
-from pyrig.rig.configs.base.config_file import ConfigDict
 from pyrig_dev.rig.configs.remote_version_control.workflows.deploy import (
     DeployWorkflowConfigFile as BaseDeployWorkflowConfigFile,
 )
@@ -23,7 +22,7 @@ from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
 class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     """Deploy workflow that adds a build-and-push-image-to-GHCR job after release."""
 
-    def jobs(self) -> ConfigDict:
+    def jobs(self) -> dict[str, Any]:
         """Get the jobs for the deploy workflow.
 
         Combines the base jobs with the container image publish job.
@@ -36,7 +35,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             **self.job_container_image(),
         }
 
-    def job_container_image(self) -> ConfigDict:
+    def job_container_image(self) -> dict[str, Any]:
         """Build the job that builds and pushes the container image to GHCR.
 
         Requests ``packages: write`` permission (required to push to GHCR) at
