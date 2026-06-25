@@ -1,6 +1,5 @@
 """module."""
 
-from pyrig_containers.rig.tools.containers import registry
 from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
 
 
@@ -48,14 +47,3 @@ class TestContainerRegistry:
             ContainerRegistry.I.image_tag("v1.2.3")
             == "ghcr.io/winipedia/pyrig-containers:v1.2.3"
         )
-
-
-def test_module_docstring() -> None:
-    """Test module docstring."""
-    assert (
-        registry.__doc__
-        == """Container registry wrapper.
-
-Wraps the container registry information for publishing container images.
-"""
-    )

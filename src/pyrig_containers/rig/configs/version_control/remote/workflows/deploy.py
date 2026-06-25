@@ -11,7 +11,7 @@ image to the GitHub Container Registry (GHCR).
 
 from typing import Any
 
-from pyrig_dev.rig.configs.remote_version_control.workflows.deploy import (
+from pyrig.rig.configs.version_control.remote.workflows.deploy import (
     DeployWorkflowConfigFile as BaseDeployWorkflowConfigFile,
 )
 
@@ -198,7 +198,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         """Build the versioned image reference.
 
         Tags the image with the bare project version, resolved at workflow
-        execution time via :meth:`insert_version` (``$(uv version --short)``).
+        execution time via :meth:`shell_insert_version` (``$(uv version --short)``).
         Container image tags use the bare version, with no leading ``v`` prefix
         (e.g. ``1.2.3``).
 

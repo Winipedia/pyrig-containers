@@ -1,12 +1,12 @@
 [project]
 name = "pyrig-containers"
-version = "1.9.0"
+version = "1.11.0"
 description = "A pyrig plugin to integrate containers."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "pyrig-runtime",
     "pyrig>=15.4.0",
-    "pyrig-dev>=4.2.1",
 ]
 license = "MIT"
 license-files = [
@@ -40,7 +40,7 @@ Issues = "https://github.com/Winipedia/pyrig-containers/issues"
 Changelog = "https://github.com/Winipedia/pyrig-containers/releases"
 
 [project.scripts]
-pyrig-containers = "pyrig.rig.cli.main:main"
+pyrig-containers = "pyrig_runtime.rig.cli.main:main"
 
 [dependency-groups]
 dev = [
@@ -52,9 +52,9 @@ dev = [
     "mkdocstrings[python]>=1.0.4",
     "pip-audit>=2.10.0",
     "prek>=0.4.4",
+    "pyrig",
     "pyrig-codecov>=1.1.2",
     "pyrig-containers-pypi>=0.1.1",
-    "pyrig-dev>=1.0.0",
     "pyrig-fixtures>=0.8.0",
     "pyrig-pypi>=1.2.0",
     "pytest>=9.0.3",
@@ -111,5 +111,5 @@ root = "src"
 
 [tool.deptry.per_rule_ignores]
 DEP002 = [
-    "pyrig",
+    "pyrig-runtime",
 ]

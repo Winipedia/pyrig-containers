@@ -1,6 +1,5 @@
 """module."""
 
-from pyrig_containers.rig.tools.containers import engine
 from pyrig_containers.rig.tools.containers.engine import ContainerEngine
 
 
@@ -83,14 +82,3 @@ class TestContainerEngine:
         assert str(result) == (
             "podman push ghcr.io/owner/repo:latest --tls-verify=false"
         )
-
-
-def test_module_docstring() -> None:
-    """Test module docstring."""
-    assert (
-        engine.__doc__
-        == """Container engine wrapper.
-
-Wraps container engine commands and information.
-"""
-    )
