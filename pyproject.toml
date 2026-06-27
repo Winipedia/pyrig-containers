@@ -1,6 +1,6 @@
 [project]
 name = "pyrig-containers"
-version = "1.13.0"
+version = "1.18.0"
 description = "A pyrig plugin to integrate containers."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -55,7 +55,6 @@ dev = [
     "pyrig",
     "pyrig-codecov>=1.1.2",
     "pyrig-containers-pypi>=0.1.1",
-    "pyrig-fixtures>=0.8.0",
     "pyrig-pypi>=1.2.0",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
