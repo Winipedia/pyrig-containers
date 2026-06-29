@@ -1,6 +1,6 @@
 [project]
 name = "pyrig-containers"
-version = "1.19.0"
+version = "1.20.0"
 description = "A pyrig plugin to integrate containers."
 readme = "README.md"
 requires-python = ">=3.12"
