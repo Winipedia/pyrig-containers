@@ -934,7 +934,7 @@ wheels = [
 
 [[package]]
 name = "pyrig-containers"
-version = "1.21.0"
+version = "1.23.0"
 source = { editable = "." }
 dependencies = [
     { name = "pyrig" },

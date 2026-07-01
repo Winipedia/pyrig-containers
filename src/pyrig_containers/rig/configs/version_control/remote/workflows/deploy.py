@@ -1,13 +1,4 @@
-"""GitHub Actions workflow for deploying.
-
-Provides the ``DeployWorkflowConfigFile`` class, which generates the
-``.github/workflows/deploy.yml`` workflow file. This workflow is the final
-step in the automated CI/CD pipeline and runs after a successful release.
-
-This plugin extends the base deploy workflow with a ``container-image`` job that
-builds the project's Containerfile with podman and pushes the resulting container
-image to the GitHub Container Registry (GHCR).
-"""
+"""Extension of the deploy workflow that publishes a container image to GHCR."""
 
 from typing import Any
 
@@ -23,9 +14,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     """Deploy workflow that adds a build-and-push-image-to-GHCR job after release."""
 
     def jobs(self) -> dict[str, Any]:
-        """Get the jobs for the deploy workflow.
-
-        Combines the base jobs with the container image publish job.
+        """Add the container image publish job to the base jobs.
 
         Returns:
             Dict combining the base jobs with the container image job.
@@ -38,9 +27,8 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     def job_container_image(self) -> dict[str, Any]:
         """Build the job that builds and pushes the container image to GHCR.
 
-        Requests ``packages: write`` permission (required to push to GHCR) at
-        the job level. The job runs only when the triggering workflow run
-        succeeded. Steps are provided by :meth:`steps_container_image`.
+        Requests `packages: write` permission at the job level, required to
+        push to GHCR.
 
         Returns:
             Dict mapping the derived job ID to its configuration.
@@ -54,12 +42,10 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     def steps_container_image(self) -> list[dict[str, Any]]:
         """Build the ordered steps for the publish-container-image job.
 
-        Combines core setup (checkout and package manager) with podman
-        installation, registry login, image build, and image push steps.
-
         Returns:
-            Ordered list of step dicts: core setup, install podman, log in to
-            GHCR, build the image, push the versioned tag, push the latest tag.
+            Ordered list of step dicts: core setup, install the container
+            engine, log in to the registry, build the image, then push the
+            versioned tag and the latest tag.
         """
         return [
             *self.steps_core_setup(),
@@ -77,14 +63,11 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     ) -> dict[str, Any]:
         """Build a step that installs podman on the runner.
 
-        Uses ``redhat-actions/podman-install`` so the build and push steps have
-        a guaranteed podman installation regardless of the runner image.
-
         Args:
             step: Additional keys to merge into the step configuration.
 
         Returns:
-            Step using ``redhat-actions/podman-install@main``.
+            Step using `redhat-actions/podman-install@main`.
         """
         return self.step(
             step_func=self.step_install_container_engine,
@@ -99,14 +82,14 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     ) -> dict[str, Any]:
         """Build a step that logs podman in to the container registry.
 
-        Authenticates with GHCR using the ``github.actor`` as the username and
-        the automatic ``GITHUB_TOKEN`` secret as the password.
+        Authenticates as the workflow actor, using the automatic
+        `GITHUB_TOKEN` secret as the password.
 
         Args:
             step: Additional keys to merge into the step configuration.
 
         Returns:
-            Step that runs ``podman login`` against GHCR.
+            Step that runs `podman login` against the registry.
         """
         return self.step(
             step_func=self.step_login_container_registry,
@@ -127,15 +110,13 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     ) -> dict[str, Any]:
         """Build a step that builds the container image.
 
-        Builds the ``Containerfile`` in the build context (the project root,
-        discovered automatically by podman) and tags the resulting image with
-        both the versioned tag (``:<version>``) and ``:latest``.
+        Tags the built image with both the versioned tag and the `latest` tag.
 
         Args:
             step: Additional keys to merge into the step configuration.
 
         Returns:
-            Step that runs ``podman build``.
+            Step that runs `podman build`.
         """
         return self.step(
             step_func=self.step_build_container_image,
@@ -155,15 +136,13 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         *,
         step: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Build a step that pushes the versioned image tag to GHCR.
-
-        Pushes the ``:<version>`` tag built by :meth:`step_build_container_image`.
+        """Build a step that pushes the versioned image tag to the registry.
 
         Args:
             step: Additional keys to merge into the step configuration.
 
         Returns:
-            Step that runs ``podman push`` for the versioned tag.
+            Step that runs `podman push` for the versioned tag.
         """
         return self.step(
             step_func=self.step_push_container_image_version,
@@ -178,15 +157,13 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         *,
         step: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Build a step that pushes the ``:latest`` image tag to GHCR.
-
-        Pushes the ``:latest`` tag built by :meth:`step_build_container_image`.
+        """Build a step that pushes the `latest` image tag to the registry.
 
         Args:
             step: Additional keys to merge into the step configuration.
 
         Returns:
-            Step that runs ``podman push`` for the ``:latest`` tag.
+            Step that runs `podman push` for the `latest` tag.
         """
         return self.step(
             step_func=self.step_push_container_image_latest,
@@ -195,30 +172,24 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         )
 
     def container_image_tag_version(self) -> str:
-        """Build the versioned image reference.
+        """Build the project's image reference tagged with the project version.
 
-        Tags the image with the bare project version, resolved at workflow
-        execution time via :meth:`shell_insert_version` (``$(uv version --short)``).
-        Container image tags use the bare version, with no leading ``v`` prefix
-        (e.g. ``1.2.3``).
+        The version is a shell substitution expression resolved when the
+        workflow runs, not the literal version at generation time.
 
         Returns:
-            Image reference in the form ``ghcr.io/<owner>/<project>:<version>``.
+            Image reference tagged with the bare project version.
         """
         return ContainerRegistry.I.image_tag(self.shell_insert_version())
 
     def container_image_tag_latest(self) -> str:
-        """Build the ``:latest`` image reference.
-
-        Returns:
-            Image reference in the form ``ghcr.io/<owner>/<project>:latest``.
-        """
+        """Build the project's image reference tagged `latest`."""
         return ContainerRegistry.I.image_tag("latest")
 
     def insert_actor(self) -> str:
         """Get the expression that resolves to the workflow actor.
 
         Returns:
-            GitHub Actions expression for ``github.actor``.
+            GitHub Actions expression for `github.actor`.
         """
         return self.insert_expression("github.actor")

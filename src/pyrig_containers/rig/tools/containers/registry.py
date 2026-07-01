@@ -1,7 +1,4 @@
-"""Container registry wrapper.
-
-Wraps the container registry information for publishing container images.
-"""
+"""Container registry identity and badge metadata for publishing images."""
 
 from pyrig.rig.tools.base.tool import Group, Tool
 from pyrig.rig.tools.package_manager import PackageManager
@@ -20,63 +17,39 @@ class ContainerRegistry(Tool):
     """
 
     def name(self) -> str:
-        """Get tool name.
-
-        Returns:
-            'ghcr'
-        """
+        """Return `"ghcr"`."""
         return "ghcr"
 
     def group(self) -> str:
-        """Returns the group the tool belongs to."""
+        """Return `Group.PROJECT_INFO`."""
         return Group.PROJECT_INFO
 
     def image_url(self) -> str:
-        """Return the badge image URL for this tool.
-
-        Returns:
-            The URL of the badge image as a string.
-        """
+        """Return the Shields.io badge URL for GHCR."""
         return "https://img.shields.io/badge/GHCR-Container_Image-black?logo=github&logoColor=white"
 
     def link_url(self) -> str:
-        """Return the URL that the badge should link to for this tool.
-
-        Returns:
-            The URL of the repository's GHCR container package page as a string.
-        """
+        """Return the URL of the project's GHCR container package page."""
         repo_url = RemoteVersionController.I.repo_url()
         package = PackageManager.I.project_name()
         return f"{repo_url}/pkgs/container/{package}"
 
     def dev_dependencies(self) -> tuple[str, ...]:
-        """Get development dependencies for this tool.
-
-        Returns an empty tuple because the registry itself requires no extra
-        development dependency; pushing images is handled by the container
-        engine (e.g. podman).
-
-        Returns:
-            Empty tuple.
-        """
+        """Return an empty tuple; the registry requires no Python package."""
         return ()
 
     def host(self) -> str:
-        """Get the container registry host to publish to.
-
-        Returns:
-            ``"ghcr.io"`` (the GitHub Container Registry).
-        """
+        """Return `"ghcr.io"`."""
         return "ghcr.io"
 
     def image_name(self) -> str:
         """Build the project's fully qualified image name without a tag.
 
         Combines the registry host with the lowercased repository owner and
-        project name, as required by GHCR (image names must be lowercase).
+        project name, as GHCR requires image names to be lowercase.
 
         Returns:
-            Image name in the form ``ghcr.io/<owner>/<project>``.
+            Image name in the form `ghcr.io/<owner>/<project>`.
         """
         owner = VersionController.I.repo_owner().lower()
         project = PackageManager.I.project_name().lower()
@@ -85,13 +58,10 @@ class ContainerRegistry(Tool):
     def image_tag(self, tag: str) -> str:
         """Build the project's image reference for the given tag.
 
-        Appends the tag to :meth:`image_name`.
-
         Args:
-            tag: Tag to append to the image name (e.g. ``latest`` or
-                ``v1.2.3``).
+            tag: Tag to append to the image name (e.g. `latest` or `1.2.3`).
 
         Returns:
-            Image reference in the form ``ghcr.io/<owner>/<project>:<tag>``.
+            Image reference in the form `ghcr.io/<owner>/<project>:<tag>`.
         """
         return f"{self.image_name()}:{tag}"

@@ -12,16 +12,14 @@ from pyrig_containers.rig.tools.package_manager import PackageManager
 
 
 class ContainerfileConfigFile(StringConfigFile):
-    """Generates a production-ready Containerfile for the project.
+    """The project's `Containerfile`, built from a Python slim base image.
 
-    Produces a Containerfile with a Python slim base image, uv as the package
-    manager, a non-root runtime user (appuser, UID 1000), and layer ordering
-    optimized for cache reuse. Guaranteed to work with the container engine this
-    plugin wraps.
+    Copies in the uv binary, installs runtime dependencies with uv, and runs
+    the project as a non-root user (`appuser`, UID 1000).
     """
 
     def stem(self) -> str:
-        """Return the filename stem 'Containerfile'."""
+        """Return `"Containerfile"`."""
         return "Containerfile"
 
     def parent_path(self) -> Path:
@@ -29,40 +27,32 @@ class ContainerfileConfigFile(StringConfigFile):
         return Path()
 
     def extension(self) -> str:
-        """Return an empty string (Containerfile has no file extension)."""
+        """Return an empty string; `Containerfile` has no file extension."""
         return ""
 
     def extension_separator(self) -> str:
-        """Return an empty string, overriding the base class default separator '.'.
+        """Return an empty string, overriding the default `.` separator.
 
-        Prevents the base class from appending a dot to the filename, since
-        Containerfile uses neither an extension nor a separator.
+        Prevents a trailing dot from being appended when the extension is
+        empty, so the filename remains `Containerfile` instead of
+        `Containerfile.`.
         """
         return ""
 
     def lines(self) -> list[str]:
-        """Return the Containerfile build instructions.
-
-        Returns:
-            List of instruction lines produced by `layers()`.
-        """
+        """Return the Containerfile build instructions."""
         return self.layers()
 
     def layers(self) -> list[str]:
-        """Generate the complete sequence of Containerfile build instructions.
+        """Build the ordered sequence of Containerfile instructions.
 
-        Produces an optimized layer order so that infrequently changing files
-        (project metadata and lock file) are copied before the source tree is
-        added. This maximizes build cache reuse when only source code changes.
+        Project metadata and the lock file are copied in their own layer,
+        ahead of the application source tree, so that a source-only change
+        does not invalidate the earlier layers.
 
         Returns:
-            List of Containerfile instruction strings followed by a trailing
-            empty string.
-
-        Note:
-            Reads ``requires-python`` from ``pyproject.toml`` and falls back to
-            the bundled ``LATEST_PYTHON_VERSION`` resource file when no upper
-            bound is specified.
+            Containerfile instruction lines, ending with a trailing empty
+            string.
         """
         latest_python_version = PyprojectConfigFile.I.latest_possible_python_version()
         package_root = PackageManager.I.package_root().as_posix()
