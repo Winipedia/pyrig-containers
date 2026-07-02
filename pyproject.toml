@@ -1,12 +1,12 @@
 [project]
 name = "pyrig-containers"
-version = "2.0.0"
+version = "2.1.0"
 description = "A pyrig plugin to integrate containers."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "pyrig>=15.64.0",
-    "pyrig-runtime>=0.24.0",
+    "pyrig>=16.0.0",
+    "pyrig-runtime>=1.0.0",
 ]
 license = "MIT"
 license-files = [
@@ -52,10 +52,10 @@ dev = [
     "mkdocstrings[python]>=1.0.4",
     "pip-audit>=2.10.1",
     "prek>=0.4.6",
-    "pyrig>=15.64.0",
-    "pyrig-codecov>=1.23.0",
-    "pyrig-containers-pypi>=0.19.0",
-    "pyrig-pypi>=1.26.0",
+    "pyrig>=16.0.0",
+    "pyrig-codecov>=2.0.0",
+    "pyrig-containers-pypi>=1.0.0",
+    "pyrig-pypi>=2.0.0",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.15.20",
