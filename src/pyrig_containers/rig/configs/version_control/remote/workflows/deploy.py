@@ -34,7 +34,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             Dict mapping the derived job ID to its configuration.
         """
         return self.job(
-            job_func=self.job_container_image,
+            self.job_container_image,
             permissions={"packages": "write"},
             steps=self.steps_container_image(),
         )
@@ -70,7 +70,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             Step using `redhat-actions/podman-install@main`.
         """
         return self.step(
-            step_func=self.step_install_container_engine,
+            self.step_install_container_engine,
             uses="redhat-actions/podman-install@main",
             step=step,
         )
@@ -92,7 +92,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             Step that runs `podman login` against the registry.
         """
         return self.step(
-            step_func=self.step_login_container_registry,
+            self.step_login_container_registry,
             run=str(
                 ContainerEngine.I.login_args(
                     registry=ContainerRegistry.I.host(),
@@ -119,7 +119,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             Step that runs `podman build`.
         """
         return self.step(
-            step_func=self.step_build_container_image,
+            self.step_build_container_image,
             run=str(
                 ContainerEngine.I.build_args(
                     tags=(
@@ -145,7 +145,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             Step that runs `podman push` for the versioned tag.
         """
         return self.step(
-            step_func=self.step_push_container_image_version,
+            self.step_push_container_image_version,
             run=str(
                 ContainerEngine.I.push_args(tag=self.container_image_tag_version())
             ),
@@ -166,7 +166,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             Step that runs `podman push` for the `latest` tag.
         """
         return self.step(
-            step_func=self.step_push_container_image_latest,
+            self.step_push_container_image_latest,
             run=str(ContainerEngine.I.push_args(tag=self.container_image_tag_latest())),
             step=step,
         )
