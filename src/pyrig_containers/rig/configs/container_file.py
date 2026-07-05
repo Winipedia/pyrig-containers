@@ -58,7 +58,7 @@ class ContainerfileConfigFile(StringConfigFile):
         package_root = PackageManager.I.package_root().as_posix()
         project_name = PackageManager.I.project_name()
         workdir = Path(project_name).as_posix()
-        app_user_name = "appuser"
+        app_username = "appuser"
         entrypoint = json.dumps(list(PackageManager.I.run_args(project_name)))
         readme_path, license_path, pyproject_path, lock_file_path = (
             ReadmeConfigFile.I.path().as_posix(),
@@ -79,10 +79,10 @@ class ContainerfileConfigFile(StringConfigFile):
             f"WORKDIR /{workdir}",
             f"COPY --from={image_url} {image_source_path} {image_destination_path}",
             f"COPY {copy_files} ./",
-            f"RUN useradd -m -u 1000 {app_user_name}",
-            f"RUN chown -R {app_user_name}:{app_user_name} .",
-            f"USER {app_user_name}",
-            f"COPY --chown={app_user_name}:{app_user_name} {package_root} {package_root}",  # noqa: E501
+            f"RUN useradd -m -u 1000 {app_username}",
+            f"RUN chown -R {app_username}:{app_username} .",
+            f"USER {app_username}",
+            f"COPY --chown={app_username}:{app_username} {package_root} {package_root}",
             f"RUN {install_dependencies_no_dev}",
             f"RUN rm {copy_files}",
             f"ENTRYPOINT {entrypoint}",
