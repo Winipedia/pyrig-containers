@@ -222,14 +222,3 @@ __marimo__/
 # pyrig stuff
 .rumdl_cache/
 .scratch.py
-
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
-
-# Virtual environments
-.venv
