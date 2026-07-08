@@ -18,14 +18,6 @@ class ContainerfileConfigFile(StringConfigFile):
     the project as a non-root user (`appuser`, UID 1000).
     """
 
-    def stem(self) -> str:
-        """Return `"Containerfile"`."""
-        return "Containerfile"
-
-    def parent_path(self) -> Path:
-        """Return the project root directory."""
-        return Path()
-
     def extension(self) -> str:
         """Return an empty string; `Containerfile` has no file extension."""
         return ""
@@ -42,6 +34,14 @@ class ContainerfileConfigFile(StringConfigFile):
     def lines(self) -> list[str]:
         """Return the Containerfile build instructions."""
         return self.layers()
+
+    def parent_path(self) -> Path:
+        """Return the project root directory."""
+        return Path()
+
+    def stem(self) -> str:
+        """Return `"Containerfile"`."""
+        return "Containerfile"
 
     def layers(self) -> list[str]:
         """Build the ordered sequence of Containerfile instructions.

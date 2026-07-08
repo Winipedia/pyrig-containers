@@ -15,9 +15,9 @@ class ContainerEngine(Tool):
     then `push_args` to publish each tag to the registry.
     """
 
-    def name(self) -> str:
-        """Return `"podman"`."""
-        return "podman"
+    def dev_dependencies(self) -> tuple[str, ...]:
+        """Return an empty tuple; `podman` is a system package, not a Python one."""
+        return ()
 
     def group(self) -> str:
         """Return `Group.TOOLING`."""
@@ -31,30 +31,9 @@ class ContainerEngine(Tool):
         """Return the URL of the `podman` project page."""
         return "https://podman.io"
 
-    def dev_dependencies(self) -> tuple[str, ...]:
-        """Return an empty tuple; `podman` is a system package, not a Python one."""
-        return ()
-
-    def login_args(
-        self, *args: str, registry: str, username: str, password: str
-    ) -> Args:
-        """Build args to authenticate the container engine with a registry.
-
-        Constructs `podman login <registry> --username <username>
-        --password <password>`, appending `*args` at the end.
-
-        Args:
-            *args: Additional arguments appended to the command.
-            registry: Registry host to authenticate against (e.g. `ghcr.io`).
-            username: Account name to log in as.
-            password: Token or password for the account.
-
-        Returns:
-            Args for the `podman login` command.
-        """
-        return self.args(
-            "login", registry, "--username", username, "--password", password, *args
-        )
+    def name(self) -> str:
+        """Return `"podman"`."""
+        return "podman"
 
     def build_args(
         self, *args: str, tags: Iterable[str] = (), context: str = "."
@@ -78,6 +57,27 @@ class ContainerEngine(Tool):
         """
         tag_args = (arg for tag in tags for arg in ("--tag", tag))
         return self.args("build", *tag_args, *args, context)
+
+    def login_args(
+        self, *args: str, registry: str, username: str, password: str
+    ) -> Args:
+        """Build args to authenticate the container engine with a registry.
+
+        Constructs `podman login <registry> --username <username>
+        --password <password>`, appending `*args` at the end.
+
+        Args:
+            *args: Additional arguments appended to the command.
+            registry: Registry host to authenticate against (e.g. `ghcr.io`).
+            username: Account name to log in as.
+            password: Token or password for the account.
+
+        Returns:
+            Args for the `podman login` command.
+        """
+        return self.args(
+            "login", registry, "--username", username, "--password", password, *args
+        )
 
     def push_args(self, *args: str, tag: str) -> Args:
         """Build args to push a tagged image to its registry.

@@ -16,9 +16,9 @@ class ContainerRegistry(Tool):
     for GHCR.
     """
 
-    def name(self) -> str:
-        """Return `"ghcr"`."""
-        return "ghcr"
+    def dev_dependencies(self) -> tuple[str, ...]:
+        """Return an empty tuple; the registry requires no Python package."""
+        return ()
 
     def group(self) -> str:
         """Return `Group.PROJECT_INFO`."""
@@ -34,13 +34,20 @@ class ContainerRegistry(Tool):
         package = PackageManager.I.project_name()
         return f"{repo_url}/pkgs/container/{package}"
 
-    def dev_dependencies(self) -> tuple[str, ...]:
-        """Return an empty tuple; the registry requires no Python package."""
-        return ()
+    def name(self) -> str:
+        """Return `"ghcr"`."""
+        return "ghcr"
 
-    def host(self) -> str:
-        """Return `"ghcr.io"`."""
-        return "ghcr.io"
+    def image_tag(self, tag: str) -> str:
+        """Build the project's image reference for the given tag.
+
+        Args:
+            tag: Tag to append to the image name (e.g. `latest` or `1.2.3`).
+
+        Returns:
+            Image reference in the form `ghcr.io/<owner>/<project>:<tag>`.
+        """
+        return f"{self.image_name()}:{tag}"
 
     def image_name(self) -> str:
         """Build the project's fully qualified image name without a tag.
@@ -55,13 +62,6 @@ class ContainerRegistry(Tool):
         project = PackageManager.I.project_name().lower()
         return f"{self.host()}/{owner}/{project}"
 
-    def image_tag(self, tag: str) -> str:
-        """Build the project's image reference for the given tag.
-
-        Args:
-            tag: Tag to append to the image name (e.g. `latest` or `1.2.3`).
-
-        Returns:
-            Image reference in the form `ghcr.io/<owner>/<project>:<tag>`.
-        """
-        return f"{self.image_name()}:{tag}"
+    def host(self) -> str:
+        """Return `"ghcr.io"`."""
+        return "ghcr.io"
