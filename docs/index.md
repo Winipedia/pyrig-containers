@@ -47,8 +47,6 @@ uv add pyrig-containers --dev
 uv run pyrig sync
 ```
 
-After this you might need to fix up the README.md and the index.md once because
-of the added badges and then you are ready to go.
 If you want to locally build images or do other container actions you will need
 to install podman locally as well.
 
