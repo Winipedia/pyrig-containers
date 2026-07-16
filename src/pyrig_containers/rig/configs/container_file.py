@@ -31,29 +31,8 @@ class ContainerfileConfigFile(StringConfigFile):
         """
         return ""
 
-    def lines(self) -> list[str]:
-        """Return the Containerfile build instructions."""
-        return self.layers()
-
-    def parent_path(self) -> Path:
-        """Return the project root directory."""
-        return Path()
-
-    def stem(self) -> str:
-        """Return `"Containerfile"`."""
-        return "Containerfile"
-
-    def layers(self) -> list[str]:
-        """Build the ordered sequence of Containerfile instructions.
-
-        Project metadata and the lock file are copied in their own layer,
-        ahead of the application source tree, so that a source-only change
-        does not invalidate the earlier layers.
-
-        Returns:
-            Containerfile instruction lines, ending with a trailing empty
-            string.
-        """
+    def content(self) -> str:
+        """Return the content of the `Containerfile` as a string."""
         latest_python_version = PyprojectConfigFile.I.latest_possible_python_version()
         package_root = PackageManager.I.package_root().as_posix()
         project_name = PackageManager.I.project_name()
@@ -73,18 +52,23 @@ class ContainerfileConfigFile(StringConfigFile):
         image_url, image_source_path, image_destination_path = (
             PackageManager.I.container_image()
         )
+        return f"""FROM python:{latest_python_version}-slim
+WORKDIR /{workdir}
+COPY --from={image_url} {image_source_path} {image_destination_path}
+COPY {copy_files} ./
+RUN useradd -m -u 1000 {app_username}
+RUN chown -R {app_username}:{app_username} .
+USER {app_username}
+COPY --chown={app_username}:{app_username} {package_root} {package_root}
+RUN {install_dependencies_no_dev}
+RUN rm {copy_files}
+ENTRYPOINT {entrypoint}
+"""
 
-        return [
-            f"FROM python:{latest_python_version}-slim",
-            f"WORKDIR /{workdir}",
-            f"COPY --from={image_url} {image_source_path} {image_destination_path}",
-            f"COPY {copy_files} ./",
-            f"RUN useradd -m -u 1000 {app_username}",
-            f"RUN chown -R {app_username}:{app_username} .",
-            f"USER {app_username}",
-            f"COPY --chown={app_username}:{app_username} {package_root} {package_root}",
-            f"RUN {install_dependencies_no_dev}",
-            f"RUN rm {copy_files}",
-            f"ENTRYPOINT {entrypoint}",
-            "",
-        ]
+    def parent_path(self) -> Path:
+        """Return the project root directory."""
+        return Path()
+
+    def stem(self) -> str:
+        """Return `"Containerfile"`."""
+        return "Containerfile"

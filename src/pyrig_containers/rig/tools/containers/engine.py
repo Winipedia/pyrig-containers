@@ -25,7 +25,7 @@ class ContainerEngine(Tool):
 
     def image_url(self) -> str:
         """Return the Shields.io badge URL for `podman`."""
-        return f"https://img.shields.io/badge/container-{self.shield_name()}-A23CD6?logo=podman&logoColor=grey&colorA=0D1F3F&colorB=A23CD6"
+        return f"https://img.shields.io/badge/Container-{self.shield_name().capitalize()}-A23CD6?logo=podman&logoColor=grey&colorA=0D1F3F&colorB=A23CD6"
 
     def link_url(self) -> str:
         """Return the URL of the `podman` project page."""

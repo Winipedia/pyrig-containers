@@ -24,14 +24,13 @@ class TestContainerfileConfigFile:
         """Test method."""
         assert ContainerfileConfigFile.I.extension_separator() == ""
 
-    def test_lines(self) -> None:
+    def test_content(self) -> None:
         """Test method."""
-        layers = ContainerfileConfigFile.I.layers()
-        lines = ContainerfileConfigFile.I.lines()
-        content = "\n".join(lines)
-        assert all(layer in content for layer in layers)
-
-    def test_layers(self) -> None:
-        """Test method."""
-        layers = ContainerfileConfigFile.I.layers()
-        assert len(layers) > 0
+        content = ContainerfileConfigFile.I.content()
+        assert content.startswith("FROM python:")
+        assert "WORKDIR" in content
+        assert "COPY --from=" in content
+        assert "COPY" in content
+        assert "RUN useradd -m -u 1000 appuser" in content
+        assert "RUN chown -R appuser:appuser ." in content
+        assert "USER appuser" in content

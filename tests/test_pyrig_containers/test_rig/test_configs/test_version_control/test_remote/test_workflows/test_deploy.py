@@ -46,10 +46,15 @@ class TestDeployWorkflowConfigFile:
     def test_step_login_container_registry(self) -> None:
         """Test method."""
         step = DeployWorkflowConfigFile.I.step_login_container_registry()
-        assert step["run"] == (
-            "podman login ghcr.io "
-            "--username ${{ github.actor }} "
-            "--password ${{ secrets.GITHUB_TOKEN }}"
+        assert (
+            step["run"]
+            == r"""podman \
+login \
+ghcr.io \
+--username \
+${{ github.actor }} \
+--password \
+${{ secrets.GITHUB_TOKEN }}"""
         )
 
     def test_step_build_container_image(self) -> None:
@@ -57,13 +62,25 @@ class TestDeployWorkflowConfigFile:
         step = DeployWorkflowConfigFile.I.step_build_container_image()
         version = DeployWorkflowConfigFile.I.container_image_tag_version()
         latest = DeployWorkflowConfigFile.I.container_image_tag_latest()
-        assert step["run"] == f"podman build --tag {version} --tag {latest} ."
+        assert (
+            step["run"]
+            == rf"""podman \
+build \
+--tag \
+{version} \
+--tag \
+{latest} \
+."""
+        )
 
     def test_step_push_container_image_version(self) -> None:
         """Test method."""
         step = DeployWorkflowConfigFile.I.step_push_container_image_version()
-        assert step["run"] == (
-            f"podman push {DeployWorkflowConfigFile.I.container_image_tag_version()}"
+        assert (
+            step["run"]
+            == rf"""podman \
+push \
+{DeployWorkflowConfigFile.I.container_image_tag_version()}"""
         )
 
     def test_step_push_container_image_latest(self) -> None:

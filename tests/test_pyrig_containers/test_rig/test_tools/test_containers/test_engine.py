@@ -35,23 +35,28 @@ class TestContainerEngine:
 
     def test_login_args(self) -> None:
         """Test method."""
+        random_string = "something"
         result = ContainerEngine.I.login_args(
             registry="ghcr.io",
             username="user",
-            password="token",  # noqa: S106  # nosec: B106
+            password=random_string,  # nosec: B106
         )
-        assert str(result) == "podman login ghcr.io --username user --password token"
+        assert (
+            str(result)
+            == f"podman login ghcr.io --username user --password {random_string}"
+        )
 
     def test_login_args_extra_args(self) -> None:
         """Test method."""
+        random_string = "something"
         result = ContainerEngine.I.login_args(
             "--tls-verify=false",
             registry="ghcr.io",
             username="user",
-            password="token",  # noqa: S106  # nosec: B106
+            password=random_string,  # nosec: B106
         )
         assert str(result) == (
-            "podman login ghcr.io --username user --password token --tls-verify=false"
+            f"podman login ghcr.io --username user --password {random_string} --tls-verify=false"  # noqa: E501
         )
 
     def test_build_args(self) -> None:
@@ -77,7 +82,8 @@ class TestContainerEngine:
     def test_push_args_extra_args(self) -> None:
         """Test method."""
         result = ContainerEngine.I.push_args(
-            "--tls-verify=false", tag="ghcr.io/owner/repo:latest"
+            "--tls-verify=false",
+            tag="ghcr.io/owner/repo:latest",
         )
         assert str(result) == (
             "podman push ghcr.io/owner/repo:latest --tls-verify=false"
