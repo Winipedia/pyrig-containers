@@ -1,6 +1,6 @@
 """Container-specific conventions for the project's package manager."""
 
-from pyrig.rig.tools.package_manager import PackageManager as BasePackageManager
+from pyrig.rig.tools.packages.manager import PackageManager as BasePackageManager
 
 
 class PackageManager(BasePackageManager):

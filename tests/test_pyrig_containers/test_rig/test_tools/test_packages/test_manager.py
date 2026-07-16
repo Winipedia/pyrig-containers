@@ -1,6 +1,6 @@
 """Test module."""
 
-from pyrig_containers.rig.tools.package_manager import PackageManager
+from pyrig_containers.rig.tools.packages.manager import PackageManager
 
 
 class TestPackageManager:

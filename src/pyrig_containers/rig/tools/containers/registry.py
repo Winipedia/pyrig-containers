@@ -1,9 +1,10 @@
 """Container registry identity and badge metadata for publishing images."""
 
 from pyrig.rig.tools.base.tool import Group, Tool
-from pyrig.rig.tools.package_manager import PackageManager
 from pyrig.rig.tools.version_control.controller import VersionController
-from pyrig.rig.tools.version_control.remote import RemoteVersionController
+from pyrig.rig.tools.version_control.remote.controller import RemoteVersionController
+
+from pyrig_containers.rig.tools.packages.manager import PackageManager
 
 
 class ContainerRegistry(Tool):

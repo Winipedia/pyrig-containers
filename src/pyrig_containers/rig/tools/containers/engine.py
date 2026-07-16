@@ -25,7 +25,7 @@ class ContainerEngine(Tool):
 
     def image_url(self) -> str:
         """Return the Shields.io badge URL for `podman`."""
-        return "https://img.shields.io/badge/Container-Podman-A23CD6?logo=podman&logoColor=grey&colorA=0D1F3F&colorB=A23CD6"
+        return f"https://img.shields.io/badge/container-{self.shield_name()}-A23CD6?logo=podman&logoColor=grey&colorA=0D1F3F&colorB=A23CD6"
 
     def link_url(self) -> str:
         """Return the URL of the `podman` project page."""
@@ -36,7 +36,10 @@ class ContainerEngine(Tool):
         return "podman"
 
     def build_args(
-        self, *args: str, tags: Iterable[str] = (), context: str = "."
+        self,
+        *args: str,
+        tags: Iterable[str] = (),
+        context: str = ".",
     ) -> Args:
         """Build args to build and tag an image from the build context.
 
@@ -59,7 +62,11 @@ class ContainerEngine(Tool):
         return self.args("build", *tag_args, *args, context)
 
     def login_args(
-        self, *args: str, registry: str, username: str, password: str
+        self,
+        *args: str,
+        registry: str,
+        username: str,
+        password: str,
     ) -> Args:
         """Build args to authenticate the container engine with a registry.
 
@@ -76,7 +83,13 @@ class ContainerEngine(Tool):
             Args for the `podman login` command.
         """
         return self.args(
-            "login", registry, "--username", username, "--password", password, *args
+            "login",
+            registry,
+            "--username",
+            username,
+            "--password",
+            password,
+            *args,
         )
 
     def push_args(self, *args: str, tag: str) -> Args:
