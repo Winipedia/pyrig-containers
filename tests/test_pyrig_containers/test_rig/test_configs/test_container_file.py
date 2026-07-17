@@ -31,6 +31,6 @@ class TestContainerfileConfigFile:
         assert "WORKDIR" in content
         assert "COPY --from=" in content
         assert "COPY" in content
-        assert "RUN useradd -m -u 1000 appuser" in content
-        assert "RUN chown -R appuser:appuser ." in content
+        assert "RUN useradd --create-home --uid=1000 appuser" in content
+        assert "RUN chown --recursive appuser:appuser ." in content
         assert "USER appuser" in content

@@ -51,10 +51,8 @@ class TestDeployWorkflowConfigFile:
             == r"""podman \
 login \
 ghcr.io \
---username \
-${{ github.actor }} \
---password \
-${{ secrets.GITHUB_TOKEN }}"""
+--username=${{ github.actor }} \
+--password=${{ secrets.GITHUB_TOKEN }}"""
         )
 
     def test_step_build_container_image(self) -> None:
@@ -66,10 +64,8 @@ ${{ secrets.GITHUB_TOKEN }}"""
             step["run"]
             == rf"""podman \
 build \
---tag \
-{version} \
---tag \
-{latest} \
+--tag={version} \
+--tag={latest} \
 ."""
         )
 

@@ -43,7 +43,7 @@ class ContainerEngine(Tool):
     ) -> Args:
         """Build args to build and tag an image from the build context.
 
-        Constructs `podman build --tag <tag>... <context>`, repeating
+        Constructs `podman build --tag=<tag>... <context>`, repeating
         `--tag` for each provided tag and inserting `*args` before the
         context. No `--file` is passed, so podman discovers the
         `Containerfile` in the build context automatically.
@@ -58,7 +58,7 @@ class ContainerEngine(Tool):
         Returns:
             Args for the `podman build` command.
         """
-        tag_args = (arg for tag in tags for arg in ("--tag", tag))
+        tag_args = (f"--tag={tag}" for tag in tags)
         return self.args("build", *tag_args, *args, context)
 
     def login_args(
@@ -70,8 +70,8 @@ class ContainerEngine(Tool):
     ) -> Args:
         """Build args to authenticate the container engine with a registry.
 
-        Constructs `podman login <registry> --username <username>
-        --password <password>`, appending `*args` at the end.
+        Constructs `podman login <registry> --username=<username>
+        --password=<password>`, appending `*args` at the end.
 
         Args:
             *args: Additional arguments appended to the command.
@@ -85,10 +85,8 @@ class ContainerEngine(Tool):
         return self.args(
             "login",
             registry,
-            "--username",
-            username,
-            "--password",
-            password,
+            f"--username={username}",
+            f"--password={password}",
             *args,
         )
 

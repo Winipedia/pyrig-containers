@@ -93,13 +93,11 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         """
         return self.step(
             self.step_login_container_registry,
-            run=" \\\n".join(
-                ContainerEngine.I.login_args(
-                    registry=ContainerRegistry.I.host(),
-                    username=self.insert_actor(),
-                    password=self.insert_github_token(),
-                ),
-            ),
+            run=ContainerEngine.I.login_args(
+                registry=ContainerRegistry.I.host(),
+                username=self.insert_actor(),
+                password=self.insert_github_token(),
+            ).multiline(),
             step=step,
         )
 
@@ -120,14 +118,12 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         """
         return self.step(
             self.step_build_container_image,
-            run=" \\\n".join(
-                ContainerEngine.I.build_args(
-                    tags=(
-                        self.container_image_tag_version(),
-                        self.container_image_tag_latest(),
-                    ),
+            run=ContainerEngine.I.build_args(
+                tags=(
+                    self.container_image_tag_version(),
+                    self.container_image_tag_latest(),
                 ),
-            ),
+            ).multiline(),
             step=step,
         )
 
@@ -146,9 +142,9 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         """
         return self.step(
             self.step_push_container_image_version,
-            run=" \\\n".join(
-                ContainerEngine.I.push_args(tag=self.container_image_tag_version()),
-            ),
+            run=ContainerEngine.I.push_args(
+                tag=self.container_image_tag_version(),
+            ).multiline(),
             step=step,
         )
 

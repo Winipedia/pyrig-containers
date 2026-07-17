@@ -43,7 +43,7 @@ class TestContainerEngine:
         )
         assert (
             str(result)
-            == f"podman login ghcr.io --username user --password {random_string}"
+            == f"podman login ghcr.io --username=user --password={random_string}"
         )
 
     def test_login_args_extra_args(self) -> None:
@@ -56,23 +56,23 @@ class TestContainerEngine:
             password=random_string,  # nosec: B106
         )
         assert str(result) == (
-            f"podman login ghcr.io --username user --password {random_string} --tls-verify=false"  # noqa: E501
+            f"podman login ghcr.io --username=user --password={random_string} --tls-verify=false"  # noqa: E501
         )
 
     def test_build_args(self) -> None:
         """Test method."""
         result = ContainerEngine.I.build_args(tags=("image:v1.0.0", "image:latest"))
-        assert str(result) == ("podman build --tag image:v1.0.0 --tag image:latest .")
+        assert str(result) == ("podman build --tag=image:v1.0.0 --tag=image:latest .")
 
     def test_build_args_custom_context(self) -> None:
         """Test method."""
         result = ContainerEngine.I.build_args(tags=("image:latest",), context="src")
-        assert str(result) == "podman build --tag image:latest src"
+        assert str(result) == "podman build --tag=image:latest src"
 
     def test_build_args_extra_args(self) -> None:
         """Test method."""
         result = ContainerEngine.I.build_args("--no-cache", tags=("image:latest",))
-        assert str(result) == "podman build --tag image:latest --no-cache ."
+        assert str(result) == "podman build --tag=image:latest --no-cache ."
 
     def test_push_args(self) -> None:
         """Test method."""

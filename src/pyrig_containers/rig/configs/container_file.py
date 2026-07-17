@@ -56,8 +56,8 @@ class ContainerfileConfigFile(StringConfigFile):
 WORKDIR /{workdir}
 COPY --from={image_url} {image_source_path} {image_destination_path}
 COPY {copy_files} ./
-RUN useradd -m -u 1000 {app_username}
-RUN chown -R {app_username}:{app_username} .
+RUN useradd --create-home --uid=1000 {app_username}
+RUN chown --recursive {app_username}:{app_username} .
 USER {app_username}
 COPY --chown={app_username}:{app_username} {package_root} {package_root}
 RUN {install_dependencies_no_dev}
