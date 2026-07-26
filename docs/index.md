@@ -66,12 +66,16 @@ to install podman locally as well.
 
 ### Containerfile generation
 
-`ContainerfileConfigFile` generates a `Containerfile` at the project root. It starts
-from a slim Python base image matching the project's supported Python version,
-installs `uv` from its official image, and copies project metadata and the lock
-file before the source tree to maximise build-cache reuse. The image runs as a
-non-root `appuser` (UID 1000) and installs only non-development dependencies.
-Functionality is guaranteed for Podman, the container engine the plugin wraps.
+`ContainerfileConfigFile` generates a `Containerfile` at the project root. It
+starts from a slim Python base image matching the highest Python version the
+project supports, then copies in the `uv` binary — sourced via a
+`PackageManager` override (`container_image`) that supplies the image and its
+paths — followed by the project's metadata and lock file. After creating a
+non-root `appuser` (UID 1000) and giving it ownership of the copied files, it
+switches to that user, copies in the source tree, installs only
+non-development dependencies with `uv`, and removes the now-unneeded metadata
+files. The entrypoint runs the project with `uv run <project-name>`. Podman is
+the only container engine this Containerfile is verified against — see below.
 
 ### Container engine
 
