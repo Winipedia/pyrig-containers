@@ -1,4 +1,8 @@
-"""Extension of the deploy workflow that publishes a container image to GHCR."""
+"""Extension of the deploy workflow that builds and pushes a container image.
+
+Runs after a release and tags the image with both the release version and
+`latest`.
+"""
 
 from typing import Any
 
@@ -11,7 +15,7 @@ from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
 
 
 class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
-    """Deploy workflow that adds a build-and-push-image-to-GHCR job after release."""
+    """Deploy workflow that adds a job to build and push a container image to GHCR."""
 
     def jobs(self) -> dict[str, Any]:
         """Add the container image publish job to the base jobs.
@@ -183,7 +187,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         return ContainerRegistry.I.image_tag("latest")
 
     def insert_actor(self) -> str:
-        """Get the expression that resolves to the workflow actor.
+        """Return the expression that resolves to the workflow actor.
 
         Returns:
             GitHub Actions expression for `github.actor`.

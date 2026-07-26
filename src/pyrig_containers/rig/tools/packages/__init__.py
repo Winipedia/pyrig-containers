@@ -1,1 +1,1 @@
-"""Tools for building and publishing container images."""
+"""Container-specific overrides for pyrig's package-manager tool."""

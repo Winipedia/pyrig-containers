@@ -4,7 +4,11 @@ from pyrig.rig.tools.packages.manager import PackageManager as BasePackageManage
 
 
 class PackageManager(BasePackageManager):
-    """You can override methods from the base class to customize behavior."""
+    """`uv` package manager, extended with a container-image convention.
+
+    Adds `container_image`, which supplies the image and paths needed to
+    embed the `uv` binary in a container image.
+    """
 
     def container_image(self) -> tuple[str, str, str]:
         """Return the image and paths for copying uv into a container image.

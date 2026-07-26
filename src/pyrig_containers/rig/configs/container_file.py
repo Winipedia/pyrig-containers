@@ -32,7 +32,13 @@ class ContainerfileConfigFile(StringConfigFile):
         return ""
 
     def content(self) -> str:
-        """Return the content of the `Containerfile` as a string."""
+        """Build the required `Containerfile` text.
+
+        Returns:
+            Dockerfile instructions that copy in the `uv` binary, install
+            the project's runtime dependencies, and run the project as the
+            non-root `appuser` user.
+        """
         latest_python_version = PyprojectConfigFile.I.latest_possible_python_version()
         package_root = PackageManager.I.package_root().as_posix()
         project_name = PackageManager.I.project_name()

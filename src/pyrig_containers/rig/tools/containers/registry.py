@@ -10,11 +10,8 @@ from pyrig_containers.rig.tools.packages.manager import PackageManager
 class ContainerRegistry(Tool):
     """GitHub Container Registry (GHCR) wrapper.
 
-    Models the registry that container images are published to, kept separate
-    from the container engine that builds and pushes them (a registry is not a
-    property of the engine, nor of the remote version controller). Provides the
-    registry host, the project's image reference within it, and badge metadata
-    for GHCR.
+    Provides the registry host, the project's fully qualified image
+    reference within it, and badge metadata for GHCR.
     """
 
     def dev_dependencies(self) -> tuple[str, ...]:
