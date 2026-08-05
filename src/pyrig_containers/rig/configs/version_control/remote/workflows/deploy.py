@@ -60,15 +60,8 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             self.step_push_container_image_latest(),
         ]
 
-    def step_install_container_engine(
-        self,
-        *,
-        step: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
+    def step_install_container_engine(self) -> dict[str, Any]:
         """Build a step that installs podman on the runner.
-
-        Args:
-            step: Additional keys to merge into the step configuration.
 
         Returns:
             Step using `redhat-actions/podman-install@main`.
@@ -76,21 +69,13 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         return self.step(
             self.step_install_container_engine,
             uses="redhat-actions/podman-install@main",
-            step=step,
         )
 
-    def step_login_container_registry(
-        self,
-        *,
-        step: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
+    def step_login_container_registry(self) -> dict[str, Any]:
         """Build a step that logs podman in to the container registry.
 
         Authenticates as the workflow actor, using the automatic
         `GITHUB_TOKEN` secret as the password.
-
-        Args:
-            step: Additional keys to merge into the step configuration.
 
         Returns:
             Step that runs `podman login` against the registry.
@@ -102,20 +87,12 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
                 username=self.insert_actor(),
                 password=self.insert_github_token(),
             ).multiline(),
-            step=step,
         )
 
-    def step_build_container_image(
-        self,
-        *,
-        step: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
+    def step_build_container_image(self) -> dict[str, Any]:
         """Build a step that builds the container image.
 
         Tags the built image with both the versioned tag and the `latest` tag.
-
-        Args:
-            step: Additional keys to merge into the step configuration.
 
         Returns:
             Step that runs `podman build`.
@@ -128,18 +105,10 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
                     self.container_image_tag_latest(),
                 ),
             ).multiline(),
-            step=step,
         )
 
-    def step_push_container_image_version(
-        self,
-        *,
-        step: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
+    def step_push_container_image_version(self) -> dict[str, Any]:
         """Build a step that pushes the versioned image tag to the registry.
-
-        Args:
-            step: Additional keys to merge into the step configuration.
 
         Returns:
             Step that runs `podman push` for the versioned tag.
@@ -149,18 +118,10 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             run=ContainerEngine.I.push_args(
                 tag=self.container_image_tag_version(),
             ).multiline(),
-            step=step,
         )
 
-    def step_push_container_image_latest(
-        self,
-        *,
-        step: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
+    def step_push_container_image_latest(self) -> dict[str, Any]:
         """Build a step that pushes the `latest` image tag to the registry.
-
-        Args:
-            step: Additional keys to merge into the step configuration.
 
         Returns:
             Step that runs `podman push` for the `latest` tag.
@@ -168,7 +129,6 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         return self.step(
             self.step_push_container_image_latest,
             run=str(ContainerEngine.I.push_args(tag=self.container_image_tag_latest())),
-            step=step,
         )
 
     def container_image_tag_version(self) -> str:
