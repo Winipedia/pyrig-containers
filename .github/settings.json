@@ -2,6 +2,7 @@
   "repository": {
     "name": "pyrig-containers",
     "description": "A pyrig plugin to integrate containers.",
+    "homepage": "https://Winipedia.github.io/pyrig-containers",
     "default_branch": "main",
     "delete_branch_on_merge": true,
     "allow_update_branch": true,
