@@ -39,7 +39,10 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         """
         return self.job(
             self.job_container_image,
-            permissions={"packages": "write"},
+            permissions={
+                **self.permission_contents(),
+                **self.permission_packages(write=True),
+            },
             steps=self.steps_container_image(),
         )
 

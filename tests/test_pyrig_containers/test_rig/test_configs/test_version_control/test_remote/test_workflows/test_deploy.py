@@ -20,7 +20,10 @@ class TestDeployWorkflowConfigFile:
         job = DeployWorkflowConfigFile.I.job_container_image()
         assert set(job) == {"container-image"}
         config = job["container-image"]
-        assert config["permissions"] == {"packages": "write"}
+        assert config["permissions"] == {
+            "contents": "read",
+            "packages": "write",
+        }
         assert config["if"] == DeployWorkflowConfigFile.I.if_workflow_run_is_success()
         assert config["steps"] == DeployWorkflowConfigFile.I.steps_container_image()
 
