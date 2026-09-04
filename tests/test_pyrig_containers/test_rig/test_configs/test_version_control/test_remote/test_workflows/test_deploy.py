@@ -24,7 +24,7 @@ class TestDeployWorkflowConfigFile:
             "contents": "read",
             "packages": "write",
         }
-        assert config["if"] == DeployWorkflowConfigFile.I.if_workflow_run_is_success()
+        assert "if" not in config
         assert config["steps"] == DeployWorkflowConfigFile.I.steps_container_image()
 
     def test_steps_container_image(self) -> None:
