@@ -56,8 +56,8 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         return [
             *self.steps_core_setup(),
             self.step_login_container_registry(),
-            self.step_build_container_image(),
             self.step_extract_version(),
+            self.step_build_container_image(),
             self.step_push_container_image_version(),
             self.step_push_container_image_latest(),
         ]
@@ -101,6 +101,9 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
                     self.container_image_tag_latest(),
                 ),
             ).multiline(),
+            env={
+                self.version_var(): self.insert_output_version(),
+            },
         )
 
     def step_push_container_image_version(self) -> dict[str, Any]:

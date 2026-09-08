@@ -35,8 +35,8 @@ class TestDeployWorkflowConfigFile:
             "checkout-repository",
             "setup-package-manager",
             "login-container-registry",
-            "build-container-image",
             "extract-version",
+            "build-container-image",
             "push-container-image-version",
             "push-container-image-latest",
         ]

@@ -115,6 +115,12 @@
           "ACTOR": "${{ github.actor }}"
           "TOKEN": "${{ secrets.GITHUB_TOKEN }}"
       -
+        "name": "Extract Version"
+        "id": "extract-version"
+        "run": |-
+          VERSION="$(uv version --short)"
+          echo version="${VERSION}" >> "${GITHUB_OUTPUT}"
+      -
         "name": "Build Container Image"
         "id": "build-container-image"
         "run": |-
@@ -123,12 +129,8 @@
           --tag=ghcr.io/winipedia/pyrig-containers:"${VERSION}" \
           --tag=ghcr.io/winipedia/pyrig-containers:latest \
           .
-      -
-        "name": "Extract Version"
-        "id": "extract-version"
-        "run": |-
-          VERSION="$(uv version --short)"
-          echo version="${VERSION}" >> "${GITHUB_OUTPUT}"
+        "env":
+          "VERSION": "${{ steps.extract-version.outputs.version }}"
       -
         "name": "Push Container Image Version"
         "id": "push-container-image-version"
