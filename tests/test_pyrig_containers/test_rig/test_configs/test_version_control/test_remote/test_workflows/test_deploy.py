@@ -34,9 +34,9 @@ class TestDeployWorkflowConfigFile:
         assert ids == [
             "checkout-repository",
             "setup-package-manager",
-            "install-container-engine",
             "login-container-registry",
             "build-container-image",
+            "extract-version",
             "push-container-image-version",
             "push-container-image-latest",
         ]
@@ -46,11 +46,11 @@ class TestDeployWorkflowConfigFile:
         step = DeployWorkflowConfigFile.I.step_login_container_registry()
         assert (
             step["run"]
-            == r"""podman \
+            == r'''podman \
 login \
 ghcr.io \
---username=${{ github.actor }} \
---password=${{ secrets.GITHUB_TOKEN }}"""
+--username="${ACTOR}" \
+--password="${TOKEN}"'''
         )
 
     def test_step_build_container_image(self) -> None:
@@ -88,7 +88,7 @@ push \
         """Test method."""
         assert (
             DeployWorkflowConfigFile.I.container_image_tag_version()
-            == "ghcr.io/winipedia/pyrig-containers:$(uv version --short)"
+            == 'ghcr.io/winipedia/pyrig-containers:"${VERSION}"'
         )
 
     def test_container_image_tag_latest(self) -> None:
