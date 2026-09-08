@@ -44,17 +44,24 @@
         "with":
           "python-version": "3.14"
       -
+        "name": "Extract Version"
+        "id": "extract-version"
+        "run": |-
+          VERSION="$(uv version --short)"
+          echo version="${VERSION}" >> "${GITHUB_OUTPUT}"
+      -
         "name": "Create Release"
         "id": "create-release"
         "run": |-
           gh \
           release \
           create \
-          $(uv version --short) \
-          --title=$(uv version --short) \
+          "${VERSION}" \
+          --title="${VERSION}" \
           --generate-notes
         "env":
           "GH_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
+          "VERSION": "${{ steps.extract-version.outputs.version }}"
   "deploy":
     "name": "Deploy"
     "permissions":

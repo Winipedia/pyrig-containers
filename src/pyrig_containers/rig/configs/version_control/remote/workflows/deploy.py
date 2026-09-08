@@ -50,29 +50,17 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         """Build the ordered steps for the publish-container-image job.
 
         Returns:
-            Ordered list of step dicts: core setup, install the container
-            engine, log in to the registry, build the image, then push the
-            versioned tag and the latest tag.
+            Ordered list of step dicts: core setup, log in to the registry,
+            build the image, then push the versioned tag and the latest tag.
         """
         return [
             *self.steps_core_setup(),
-            self.step_install_container_engine(),
             self.step_login_container_registry(),
             self.step_build_container_image(),
+            self.step_extract_version(),
             self.step_push_container_image_version(),
             self.step_push_container_image_latest(),
         ]
-
-    def step_install_container_engine(self) -> dict[str, Any]:
-        """Build a step that installs podman on the runner.
-
-        Returns:
-            Step using `redhat-actions/podman-install@main`.
-        """
-        return self.step(
-            self.step_install_container_engine,
-            uses="redhat-actions/podman-install@main",
-        )
 
     def step_login_container_registry(self) -> dict[str, Any]:
         """Build a step that logs podman in to the container registry.
@@ -83,13 +71,18 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         Returns:
             Step that runs `podman login` against the registry.
         """
+        actor_var, token_var = "ACTOR", "TOKEN"
         return self.step(
             self.step_login_container_registry,
             run=ContainerEngine.I.login_args(
                 registry=ContainerRegistry.I.host(),
-                username=self.insert_actor(),
-                password=self.insert_github_token(),
+                username=self.insert_parameter_expansion(actor_var),
+                password=self.insert_parameter_expansion(token_var),
             ).multiline(),
+            env={
+                actor_var: self.insert_actor(),
+                token_var: self.insert_github_token(),
+            },
         )
 
     def step_build_container_image(self) -> dict[str, Any]:
@@ -121,6 +114,9 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             run=ContainerEngine.I.push_args(
                 tag=self.container_image_tag_version(),
             ).multiline(),
+            env={
+                self.version_var(): self.insert_output_version(),
+            },
         )
 
     def step_push_container_image_latest(self) -> dict[str, Any]:
@@ -137,13 +133,10 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     def container_image_tag_version(self) -> str:
         """Build the project's image reference tagged with the project version.
 
-        The version is a shell substitution expression resolved when the
-        workflow runs, not the literal version at generation time.
-
         Returns:
             Image reference tagged with the bare project version.
         """
-        return ContainerRegistry.I.image_tag(self.shell_insert_version())
+        return ContainerRegistry.I.image_tag(self.insert_version_expansion())
 
     def container_image_tag_latest(self) -> str:
         """Build the project's image reference tagged `latest`."""

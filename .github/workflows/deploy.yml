@@ -82,6 +82,66 @@
         "name": "Deploy Documentation"
         "id": "deploy-documentation"
         "uses": "actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346"
+  "container-image":
+    "name": "Container Image"
+    "permissions":
+      "contents": "read"
+      "packages": "write"  # required
+    "runs-on": "ubuntu-latest"
+    "environment": "container-image"
+    "steps":
+      -
+        "name": "Checkout Repository"
+        "id": "checkout-repository"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "with":
+          "persist-credentials": false
+      -
+        "name": "Setup Package Manager"
+        "id": "setup-package-manager"
+        "uses": "astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d"
+        "with":
+          "python-version": "3.14"
+      -
+        "name": "Login Container Registry"
+        "id": "login-container-registry"
+        "run": |-
+          podman \
+          login \
+          ghcr.io \
+          --username="${ACTOR}" \
+          --password="${TOKEN}"
+        "env":
+          "ACTOR": "${{ github.actor }}"
+          "TOKEN": "${{ secrets.GITHUB_TOKEN }}"
+      -
+        "name": "Build Container Image"
+        "id": "build-container-image"
+        "run": |-
+          podman \
+          build \
+          --tag=ghcr.io/winipedia/pyrig-containers:"${VERSION}" \
+          --tag=ghcr.io/winipedia/pyrig-containers:latest \
+          .
+      -
+        "name": "Extract Version"
+        "id": "extract-version"
+        "run": |-
+          VERSION="$(uv version --short)"
+          echo version="${VERSION}" >> "${GITHUB_OUTPUT}"
+      -
+        "name": "Push Container Image Version"
+        "id": "push-container-image-version"
+        "run": |-
+          podman \
+          push \
+          ghcr.io/winipedia/pyrig-containers:"${VERSION}"
+        "env":
+          "VERSION": "${{ steps.extract-version.outputs.version }}"
+      -
+        "name": "Push Container Image Latest"
+        "id": "push-container-image-latest"
+        "run": "podman push ghcr.io/winipedia/pyrig-containers:latest"
   "package":
     "name": "Package"
     "permissions":
@@ -110,57 +170,4 @@
         "name": "Publish Package"
         "id": "publish-package"
         "run": "uv publish --trusted-publishing=always"
-  "container-image":
-    "name": "Container Image"
-    "permissions":
-      "contents": "read"
-      "packages": "write"  # required
-    "runs-on": "ubuntu-latest"
-    "environment": "container-image"
-    "steps":
-      -
-        "name": "Checkout Repository"
-        "id": "checkout-repository"
-        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
-        "with":
-          "persist-credentials": false
-      -
-        "name": "Setup Package Manager"
-        "id": "setup-package-manager"
-        "uses": "astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d"
-        "with":
-          "python-version": "3.14"
-      -
-        "name": "Install Container Engine"
-        "id": "install-container-engine"
-        "uses": "redhat-actions/podman-install@main"
-      -
-        "name": "Login Container Registry"
-        "id": "login-container-registry"
-        "run": |-
-          podman \
-          login \
-          ghcr.io \
-          --username=${{ github.actor }} \
-          --password=${{ secrets.GITHUB_TOKEN }}
-      -
-        "name": "Build Container Image"
-        "id": "build-container-image"
-        "run": |-
-          podman \
-          build \
-          --tag=ghcr.io/winipedia/pyrig-containers:$(uv version --short) \
-          --tag=ghcr.io/winipedia/pyrig-containers:latest \
-          .
-      -
-        "name": "Push Container Image Version"
-        "id": "push-container-image-version"
-        "run": |-
-          podman \
-          push \
-          ghcr.io/winipedia/pyrig-containers:$(uv version --short)
-      -
-        "name": "Push Container Image Latest"
-        "id": "push-container-image-latest"
-        "run": "podman push ghcr.io/winipedia/pyrig-containers:latest"
 ...

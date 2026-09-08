@@ -41,11 +41,6 @@ class TestDeployWorkflowConfigFile:
             "push-container-image-latest",
         ]
 
-    def test_step_install_container_engine(self) -> None:
-        """Test method."""
-        step = DeployWorkflowConfigFile.I.step_install_container_engine()
-        assert step["uses"] == "redhat-actions/podman-install@main"
-
     def test_step_login_container_registry(self) -> None:
         """Test method."""
         step = DeployWorkflowConfigFile.I.step_login_container_registry()
