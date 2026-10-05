@@ -1,6 +1,6 @@
 [project]
 name = "pyrig-containers"
-version = "3.16.36"
+version = "3.16.37"
 description = "A pyrig plugin to integrate containers."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -119,3 +119,7 @@ select = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ryl.rules]
+ALL = "enable"
+key-ordering = "disable"
