@@ -1,6 +1,6 @@
 [project]
 name = "pyrig-containers"
-version = "3.16.37"
+version = "3.16.42"
 description = "A pyrig plugin to integrate containers."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -27,7 +27,6 @@ classifiers = [
 ]
 dependencies = [
   "pyrig>=18.85.1",
-  "pyrig-runtime>=3.23.45",
 ]
 
 [project.urls]
@@ -51,6 +50,7 @@ dev = [
   "prek>=0.5.3",
   "pyflakes>=3.4.0",
   "pyrig-opensource>=1.0.0",
+  "pyrig-plugin>=0.1.0",
   "pyrig-pypi>=3.20.28",
   "pytest>=9.1.1",
   "pytest-cov>=7.1.0",
@@ -79,7 +79,7 @@ root = "src"
 
 [tool.deptry.per_rule_ignores]
 DEP002 = [
-  "pyrig-runtime",
+  "pyrig",
 ]
 
 [tool.pytest]
