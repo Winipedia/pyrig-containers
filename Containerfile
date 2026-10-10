@@ -1,4 +1,5 @@
 FROM python:3.14-slim
+FROM python:3.15-slim
 WORKDIR /pyrig-containers
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 COPY README.md LICENSE pyproject.toml uv.lock ./
