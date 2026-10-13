@@ -28,8 +28,8 @@ class ContainerEngine(Tool):
         return f"https://img.shields.io/badge/Container-{self.shield_name().capitalize()}-A23CD6?logo=podman&logoColor=grey&colorA=0D1F3F&colorB=A23CD6"
 
     def link_url(self) -> str:
-        """Return the URL of the `podman` project page."""
-        return "https://podman.io"
+        """Return the URL of the `podman` project repository."""
+        return "https://github.com/podman-container-tools/podman"
 
     def name(self) -> str:
         """Return `"podman"`."""

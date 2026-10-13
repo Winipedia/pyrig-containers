@@ -15,7 +15,10 @@ class TestContainerEngine:
 
     def test_link_url(self) -> None:
         """Test method."""
-        assert ContainerEngine.I.link_url() == "https://podman.io"
+        assert (
+            ContainerEngine.I.link_url()
+            == "https://github.com/podman-container-tools/podman"
+        )
 
     def test_group(self) -> None:
         """Test method."""
