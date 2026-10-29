@@ -6,6 +6,32 @@ from pyrig_containers.rig.tools.containers.engine import ContainerEngine
 class TestContainerEngine:
     """Test class."""
 
+    def test_build_args(self) -> None:
+        """Test method."""
+        result = ContainerEngine.I.build_args(tags=("image:v1.0.0", "image:latest"))
+        assert str(result) == ("podman build --tag=image:v1.0.0 --tag=image:latest .")
+
+    def test_build_args_custom_context(self) -> None:
+        """Test method."""
+        result = ContainerEngine.I.build_args(tags=("image:latest",), context="src")
+        assert str(result) == "podman build --tag=image:latest src"
+
+    def test_build_args_extra_args(self) -> None:
+        """Test method."""
+        result = ContainerEngine.I.build_args("--no-cache", tags=("image:latest",))
+        assert str(result) == "podman build --tag=image:latest --no-cache ."
+
+    def test_dev_dependencies(self) -> None:
+        """Test method."""
+        result = ContainerEngine.I.dev_dependencies()
+        assert result == ()
+
+    def test_group(self) -> None:
+        """Test method."""
+        result = ContainerEngine.I.group()
+        assert isinstance(result, str)
+        assert result == "tooling"
+
     def test_image_url(self) -> None:
         """Test method."""
         assert (
@@ -19,22 +45,6 @@ class TestContainerEngine:
             ContainerEngine.I.link_url()
             == "https://github.com/podman-container-tools/podman"
         )
-
-    def test_group(self) -> None:
-        """Test method."""
-        result = ContainerEngine.I.group()
-        assert isinstance(result, str)
-        assert result == "tooling"
-
-    def test_dev_dependencies(self) -> None:
-        """Test method."""
-        result = ContainerEngine.I.dev_dependencies()
-        assert result == ()
-
-    def test_name(self) -> None:
-        """Test method."""
-        result = ContainerEngine.I.name()
-        assert result == "podman"
 
     def test_login_args(self) -> None:
         """Test method."""
@@ -62,20 +72,10 @@ class TestContainerEngine:
             f"podman login ghcr.io --username=user --password={random_string} --tls-verify=false"  # noqa: E501
         )
 
-    def test_build_args(self) -> None:
+    def test_name(self) -> None:
         """Test method."""
-        result = ContainerEngine.I.build_args(tags=("image:v1.0.0", "image:latest"))
-        assert str(result) == ("podman build --tag=image:v1.0.0 --tag=image:latest .")
-
-    def test_build_args_custom_context(self) -> None:
-        """Test method."""
-        result = ContainerEngine.I.build_args(tags=("image:latest",), context="src")
-        assert str(result) == "podman build --tag=image:latest src"
-
-    def test_build_args_extra_args(self) -> None:
-        """Test method."""
-        result = ContainerEngine.I.build_args("--no-cache", tags=("image:latest",))
-        assert str(result) == "podman build --tag=image:latest --no-cache ."
+        result = ContainerEngine.I.name()
+        assert result == "podman"
 
     def test_push_args(self) -> None:
         """Test method."""

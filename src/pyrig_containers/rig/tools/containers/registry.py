@@ -1,5 +1,7 @@
 """Container registry identity and badge metadata for publishing images."""
 
+from typing import override
+
 from pyrig.rig.tools.base.tool import Group, Tool
 from pyrig.rig.tools.version_control.controller import VersionController
 from pyrig.rig.tools.version_control.remote.controller import RemoteVersionController
@@ -14,24 +16,29 @@ class ContainerRegistry(Tool):
     reference within it, and badge metadata for GHCR.
     """
 
+    @override
     def dev_dependencies(self) -> tuple[str, ...]:
         """Return an empty tuple; the registry requires no Python package."""
         return ()
 
+    @override
     def group(self) -> str:
         """Return `Group.PROJECT_INFO`."""
         return Group.PROJECT_INFO
 
+    @override
     def image_url(self) -> str:
         """Return the Shields.io badge URL for GHCR."""
         return "https://img.shields.io/badge/GHCR-Container_Image-black?logo=github&logoColor=white"
 
+    @override
     def link_url(self) -> str:
         """Return the URL of the project's GHCR container package page."""
         repo_url = RemoteVersionController.I.repo_url()
         package = PackageManager.I.project_name()
         return f"{repo_url}/pkgs/container/{package}"
 
+    @override
     def name(self) -> str:
         """Return `"ghcr"`."""
         return "ghcr"

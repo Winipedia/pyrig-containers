@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import override
 
 from pyrig.rig.configs.base.string_ import StringConfigFile
 from pyrig.rig.configs.community.license import LicenseConfigFile
@@ -18,19 +19,7 @@ class ContainerfileConfigFile(StringConfigFile):
     the project as a non-root user (`appuser`, UID 1000).
     """
 
-    def extension(self) -> str:
-        """Return an empty string; `Containerfile` has no file extension."""
-        return ""
-
-    def extension_separator(self) -> str:
-        """Return an empty string, overriding the default `.` separator.
-
-        Prevents a trailing dot from being appended when the extension is
-        empty, so the filename remains `Containerfile` instead of
-        `Containerfile.`.
-        """
-        return ""
-
+    @override
     def content(self) -> str:
         """Build the required `Containerfile` text.
 
@@ -71,10 +60,27 @@ RUN rm {copy_files}
 ENTRYPOINT {entrypoint}
 """
 
+    @override
+    def extension(self) -> str:
+        """Return an empty string; `Containerfile` has no file extension."""
+        return ""
+
+    @override
+    def extension_separator(self) -> str:
+        """Return an empty string, overriding the default `.` separator.
+
+        Prevents a trailing dot from being appended when the extension is
+        empty, so the filename remains `Containerfile` instead of
+        `Containerfile.`.
+        """
+        return ""
+
+    @override
     def parent_path(self) -> Path:
         """Return the project root directory."""
         return Path()
 
+    @override
     def stem(self) -> str:
         """Return `"Containerfile"`."""
         return "Containerfile"

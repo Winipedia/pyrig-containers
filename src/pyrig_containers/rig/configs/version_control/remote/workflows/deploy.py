@@ -4,7 +4,7 @@ Runs after a release and tags the image with both the release version and
 `latest`.
 """
 
-from typing import Any
+from typing import Any, override
 
 from pyrig.rig.configs.version_control.remote.workflows.deploy import (
     DeployWorkflowConfigFile as BaseDeployWorkflowConfigFile,
@@ -17,6 +17,7 @@ from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
 class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     """Deploy workflow that adds a job to build and push a container image to GHCR."""
 
+    @override
     def jobs(self) -> dict[str, Any]:
         """Add the container image publish job to the base jobs.
 
@@ -62,6 +63,27 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             self.step_push_container_image_latest(),
         ]
 
+    def step_build_container_image(self) -> dict[str, Any]:
+        """Build a step that builds the container image.
+
+        Tags the built image with both the versioned tag and the `latest` tag.
+
+        Returns:
+            Step that runs `podman build`.
+        """
+        return self.step(
+            self.step_build_container_image,
+            run=ContainerEngine.I.build_args(
+                tags=(
+                    self.container_image_tag_version(),
+                    self.container_image_tag_latest(),
+                ),
+            ).multiline(),
+            env={
+                self.version_var(): self.insert_output_version(),
+            },
+        )
+
     def step_login_container_registry(self) -> dict[str, Any]:
         """Build a step that logs podman in to the container registry.
 
@@ -85,25 +107,15 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             },
         )
 
-    def step_build_container_image(self) -> dict[str, Any]:
-        """Build a step that builds the container image.
-
-        Tags the built image with both the versioned tag and the `latest` tag.
+    def step_push_container_image_latest(self) -> dict[str, Any]:
+        """Build a step that pushes the `latest` image tag to the registry.
 
         Returns:
-            Step that runs `podman build`.
+            Step that runs `podman push` for the `latest` tag.
         """
         return self.step(
-            self.step_build_container_image,
-            run=ContainerEngine.I.build_args(
-                tags=(
-                    self.container_image_tag_version(),
-                    self.container_image_tag_latest(),
-                ),
-            ).multiline(),
-            env={
-                self.version_var(): self.insert_output_version(),
-            },
+            self.step_push_container_image_latest,
+            run=str(ContainerEngine.I.push_args(tag=self.container_image_tag_latest())),
         )
 
     def step_push_container_image_version(self) -> dict[str, Any]:
@@ -122,16 +134,9 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             },
         )
 
-    def step_push_container_image_latest(self) -> dict[str, Any]:
-        """Build a step that pushes the `latest` image tag to the registry.
-
-        Returns:
-            Step that runs `podman push` for the `latest` tag.
-        """
-        return self.step(
-            self.step_push_container_image_latest,
-            run=str(ContainerEngine.I.push_args(tag=self.container_image_tag_latest())),
-        )
+    def container_image_tag_latest(self) -> str:
+        """Build the project's image reference tagged `latest`."""
+        return ContainerRegistry.I.image_tag("latest")
 
     def container_image_tag_version(self) -> str:
         """Build the project's image reference tagged with the project version.
@@ -140,10 +145,6 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             Image reference tagged with the bare project version.
         """
         return ContainerRegistry.I.image_tag(self.insert_version_expansion())
-
-    def container_image_tag_latest(self) -> str:
-        """Build the project's image reference tagged `latest`."""
-        return ContainerRegistry.I.image_tag("latest")
 
     def insert_actor(self) -> str:
         """Return the expression that resolves to the workflow actor.

@@ -6,13 +6,28 @@ from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
 class TestContainerRegistry:
     """Test class."""
 
-    def test_name(self) -> None:
+    def test_dev_dependencies(self) -> None:
         """Test method."""
-        assert ContainerRegistry.I.name() == "ghcr"
+        assert ContainerRegistry.I.dev_dependencies() == ()
 
     def test_group(self) -> None:
         """Test method."""
         assert ContainerRegistry.I.group() == "project-info"
+
+    def test_host(self) -> None:
+        """Test method."""
+        assert ContainerRegistry.I.host() == "ghcr.io"
+
+    def test_image_name(self) -> None:
+        """Test method."""
+        assert ContainerRegistry.I.image_name() == "ghcr.io/winipedia/pyrig-containers"
+
+    def test_image_tag(self) -> None:
+        """Test method."""
+        assert (
+            ContainerRegistry.I.image_tag("v1.2.3")
+            == "ghcr.io/winipedia/pyrig-containers:v1.2.3"
+        )
 
     def test_image_url(self) -> None:
         """Test method."""
@@ -29,21 +44,6 @@ class TestContainerRegistry:
             "/pkgs/container/pyrig-containers"
         )
 
-    def test_dev_dependencies(self) -> None:
+    def test_name(self) -> None:
         """Test method."""
-        assert ContainerRegistry.I.dev_dependencies() == ()
-
-    def test_host(self) -> None:
-        """Test method."""
-        assert ContainerRegistry.I.host() == "ghcr.io"
-
-    def test_image_name(self) -> None:
-        """Test method."""
-        assert ContainerRegistry.I.image_name() == "ghcr.io/winipedia/pyrig-containers"
-
-    def test_image_tag(self) -> None:
-        """Test method."""
-        assert (
-            ContainerRegistry.I.image_tag("v1.2.3")
-            == "ghcr.io/winipedia/pyrig-containers:v1.2.3"
-        )
+        assert ContainerRegistry.I.name() == "ghcr"

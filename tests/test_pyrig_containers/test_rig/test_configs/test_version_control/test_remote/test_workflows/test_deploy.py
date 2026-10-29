@@ -8,12 +8,23 @@ from pyrig_containers.rig.configs.version_control.remote.workflows.deploy import
 class TestDeployWorkflowConfigFile:
     """Test class."""
 
-    def test_jobs(self) -> None:
+    def test_container_image_tag_latest(self) -> None:
         """Test method."""
-        jobs = DeployWorkflowConfigFile.I.jobs()
-        # base documentation job is preserved and the container image job is added
-        assert "documentation" in jobs
-        assert "container-image" in jobs
+        assert (
+            DeployWorkflowConfigFile.I.container_image_tag_latest()
+            == "ghcr.io/winipedia/pyrig-containers:latest"
+        )
+
+    def test_container_image_tag_version(self) -> None:
+        """Test method."""
+        assert (
+            DeployWorkflowConfigFile.I.container_image_tag_version()
+            == 'ghcr.io/winipedia/pyrig-containers:"${VERSION}"'
+        )
+
+    def test_insert_actor(self) -> None:
+        """Test method."""
+        assert DeployWorkflowConfigFile.I.insert_actor() == "${{ github.actor }}"
 
     def test_job_container_image(self) -> None:
         """Test method."""
@@ -27,31 +38,12 @@ class TestDeployWorkflowConfigFile:
         assert "if" not in config
         assert config["steps"] == DeployWorkflowConfigFile.I.steps_container_image()
 
-    def test_steps_container_image(self) -> None:
+    def test_jobs(self) -> None:
         """Test method."""
-        steps = DeployWorkflowConfigFile.I.steps_container_image()
-        ids = [step["id"] for step in steps]
-        assert ids == [
-            "checkout-repository",
-            "setup-package-manager",
-            "login-container-registry",
-            "extract-version",
-            "build-container-image",
-            "push-container-image-version",
-            "push-container-image-latest",
-        ]
-
-    def test_step_login_container_registry(self) -> None:
-        """Test method."""
-        step = DeployWorkflowConfigFile.I.step_login_container_registry()
-        assert (
-            step["run"]
-            == r'''podman \
-login \
-ghcr.io \
---username="${ACTOR}" \
---password="${TOKEN}"'''
-        )
+        jobs = DeployWorkflowConfigFile.I.jobs()
+        # base documentation job is preserved and the container image job is added
+        assert "documentation" in jobs
+        assert "container-image" in jobs
 
     def test_step_build_container_image(self) -> None:
         """Test method."""
@@ -67,6 +59,25 @@ build \
 ."""
         )
 
+    def test_step_login_container_registry(self) -> None:
+        """Test method."""
+        step = DeployWorkflowConfigFile.I.step_login_container_registry()
+        assert (
+            step["run"]
+            == r'''podman \
+login \
+ghcr.io \
+--username="${ACTOR}" \
+--password="${TOKEN}"'''
+        )
+
+    def test_step_push_container_image_latest(self) -> None:
+        """Test method."""
+        step = DeployWorkflowConfigFile.I.step_push_container_image_latest()
+        assert step["run"] == (
+            f"podman push {DeployWorkflowConfigFile.I.container_image_tag_latest()}"
+        )
+
     def test_step_push_container_image_version(self) -> None:
         """Test method."""
         step = DeployWorkflowConfigFile.I.step_push_container_image_version()
@@ -77,27 +88,16 @@ push \
 {DeployWorkflowConfigFile.I.container_image_tag_version()}"""
         )
 
-    def test_step_push_container_image_latest(self) -> None:
+    def test_steps_container_image(self) -> None:
         """Test method."""
-        step = DeployWorkflowConfigFile.I.step_push_container_image_latest()
-        assert step["run"] == (
-            f"podman push {DeployWorkflowConfigFile.I.container_image_tag_latest()}"
-        )
-
-    def test_container_image_tag_version(self) -> None:
-        """Test method."""
-        assert (
-            DeployWorkflowConfigFile.I.container_image_tag_version()
-            == 'ghcr.io/winipedia/pyrig-containers:"${VERSION}"'
-        )
-
-    def test_container_image_tag_latest(self) -> None:
-        """Test method."""
-        assert (
-            DeployWorkflowConfigFile.I.container_image_tag_latest()
-            == "ghcr.io/winipedia/pyrig-containers:latest"
-        )
-
-    def test_insert_actor(self) -> None:
-        """Test method."""
-        assert DeployWorkflowConfigFile.I.insert_actor() == "${{ github.actor }}"
+        steps = DeployWorkflowConfigFile.I.steps_container_image()
+        ids = [step["id"] for step in steps]
+        assert ids == [
+            "checkout-repository",
+            "setup-package-manager",
+            "login-container-registry",
+            "extract-version",
+            "build-container-image",
+            "push-container-image-version",
+            "push-container-image-latest",
+        ]

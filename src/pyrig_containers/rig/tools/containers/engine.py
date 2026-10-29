@@ -1,6 +1,7 @@
 """Podman command construction for authenticating, building, and publishing images."""
 
 from collections.abc import Iterable
+from typing import override
 
 from pyrig.core.subprocesses import Args
 from pyrig.rig.tools.base.tool import Group, Tool
@@ -15,22 +16,27 @@ class ContainerEngine(Tool):
     then `push_args` to publish each tag to the registry.
     """
 
+    @override
     def dev_dependencies(self) -> tuple[str, ...]:
         """Return an empty tuple; `podman` is a system package, not a Python one."""
         return ()
 
+    @override
     def group(self) -> str:
         """Return `Group.TOOLING`."""
         return Group.TOOLING
 
+    @override
     def image_url(self) -> str:
         """Return the Shields.io badge URL for `podman`."""
         return f"https://img.shields.io/badge/Container-{self.shield_name().capitalize()}-A23CD6?logo=podman&logoColor=grey&colorA=0D1F3F&colorB=A23CD6"
 
+    @override
     def link_url(self) -> str:
         """Return the URL of the `podman` project repository."""
         return "https://github.com/podman-container-tools/podman"
 
+    @override
     def name(self) -> str:
         """Return `"podman"`."""
         return "podman"
