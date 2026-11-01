@@ -45,6 +45,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
                 **self.permission("packages", write=True),
             },
             steps=self.steps_container_image(),
+            timeout_minutes=60,
         )
 
     def steps_container_image(self) -> list[dict[str, Any]]:
