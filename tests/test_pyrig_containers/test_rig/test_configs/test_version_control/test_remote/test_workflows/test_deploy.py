@@ -28,9 +28,8 @@ class TestDeployWorkflowConfigFile:
 
     def test_job_container_image(self) -> None:
         """Test method."""
-        job = DeployWorkflowConfigFile.I.job_container_image()
-        assert set(job) == {"container-image"}
-        config = job["container-image"]
+        config = DeployWorkflowConfigFile.I.job_container_image()
+        assert config["job_id"] == "container-image"
         assert config["permissions"] == {
             "contents": "read",
             "packages": "write",
@@ -38,12 +37,20 @@ class TestDeployWorkflowConfigFile:
         assert "if" not in config
         assert config["steps"] == DeployWorkflowConfigFile.I.steps_container_image()
 
+    def test_job_container_image_permissions(self) -> None:
+        """Test method."""
+        assert DeployWorkflowConfigFile.I.job_container_image_permissions() == {
+            "contents": "read",
+            "packages": "write",
+        }
+
     def test_jobs(self) -> None:
         """Test method."""
-        jobs = DeployWorkflowConfigFile.I.jobs()
+        workflow = DeployWorkflowConfigFile.I
+        jobs = workflow.jobs()
         # base documentation job is preserved and the container image job is added
-        assert "documentation" in jobs
-        assert "container-image" in jobs
+        assert workflow.job_documentation in jobs
+        assert workflow.job_container_image in jobs
 
     def test_step_build_container_image(self) -> None:
         """Test method."""

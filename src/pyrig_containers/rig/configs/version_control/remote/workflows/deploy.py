@@ -4,6 +4,7 @@ Runs after a release and tags the image with both the release version and
 `latest`.
 """
 
+from collections.abc import Callable
 from typing import Any, override
 
 from pyrig.rig.configs.version_control.remote.workflows.deploy import (
@@ -18,35 +19,43 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
     """Deploy workflow that adds a job to build and push a container image to GHCR."""
 
     @override
-    def jobs(self) -> dict[str, Any]:
+    def jobs(self) -> tuple[Callable[[], dict[str, Any]], ...]:
         """Add the container image publish job to the base jobs.
 
         Returns:
-            Dict combining the base jobs with the container image job.
+            Tuple combining the base job builders with the container image builder.
         """
-        return {
-            **super().jobs(),
-            **self.job_container_image(),
-        }
+        return (
+            *super().jobs(),
+            self.job_container_image,
+        )
 
     def job_container_image(self) -> dict[str, Any]:
         """Build the job that builds and pushes the container image to GHCR.
 
-        Requests `packages: write` permission at the job level, required to
-        push to GHCR.
-
         Returns:
-            Dict mapping the derived job ID to its configuration.
+            Job configuration for building and pushing the container image to GHCR.
         """
         return self.job(
             self.job_container_image,
-            permissions={
-                **self.permission_contents(),
-                **self.permission("packages", write=True),
-            },
+            permissions=self.job_container_image_permissions(),
             steps=self.steps_container_image(),
             timeout_minutes=60,
         )
+
+    def job_container_image_permissions(self) -> dict[str, Any]:
+        """Return the permissions for the container image job.
+
+        Requests `contents: read` to check out the repository and
+        `packages: write`, required to push to GHCR.
+
+        Returns:
+            Permissions mapping for the container image job.
+        """
+        return {
+            **self.permission_contents(),
+            **self.permission("packages", write=True),
+        }
 
     def steps_container_image(self) -> list[dict[str, Any]]:
         """Build the ordered steps for the publish-container-image job.

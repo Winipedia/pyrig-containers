@@ -1,6 +1,6 @@
 [project]
 name = "pyrig-containers"
-version = "3.19.2"
+version = "3.20.4"
 description = "A pyrig plugin to integrate containers."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -27,7 +27,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "pyrig>=19.2.0",
+  "pyrig>=19.9.0",
 ]
 
 [project.urls]
