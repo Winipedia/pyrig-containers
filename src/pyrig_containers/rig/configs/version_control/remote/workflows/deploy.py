@@ -38,6 +38,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         """
         return self.job(
             self.job_container_image,
+            environment="container-image",
             permissions=self.job_container_image_permissions(),
             steps=self.steps_container_image(),
             timeout_minutes=60,

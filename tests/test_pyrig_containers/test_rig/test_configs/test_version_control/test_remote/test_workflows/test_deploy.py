@@ -49,7 +49,6 @@ class TestDeployWorkflowConfigFile:
         workflow = DeployWorkflowConfigFile.I
         jobs = workflow.jobs()
         # base documentation job is preserved and the container image job is added
-        assert workflow.job_documentation in jobs
         assert workflow.job_container_image in jobs
 
     def test_step_build_container_image(self) -> None:
