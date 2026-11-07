@@ -184,10 +184,10 @@
         "id": "login-container-registry"
         "run": |-
           podman \
-          login \
-          ghcr.io \
-          --username="${ACTOR}" \
-          --password="${TOKEN}"
+            login \
+            ghcr.io \
+            --username="${ACTOR}" \
+            --password="${TOKEN}"
         "env":
           "ACTOR": "${{ github.actor }}"
           "TOKEN": "${{ secrets.GITHUB_TOKEN }}"
@@ -202,10 +202,10 @@
         "id": "build-container-image"
         "run": |-
           podman \
-          build \
-          --tag=ghcr.io/winipedia/pyrig-containers:"${VERSION}" \
-          --tag=ghcr.io/winipedia/pyrig-containers:latest \
-          .
+            build \
+            --tag=ghcr.io/winipedia/pyrig-containers:"${VERSION}" \
+            --tag=ghcr.io/winipedia/pyrig-containers:latest \
+            .
         "env":
           "VERSION": "${{ steps.extract-version.outputs.version }}"
       -
@@ -213,8 +213,8 @@
         "id": "push-container-image-version"
         "run": |-
           podman \
-          push \
-          ghcr.io/winipedia/pyrig-containers:"${VERSION}"
+            push \
+            ghcr.io/winipedia/pyrig-containers:"${VERSION}"
         "env":
           "VERSION": "${{ steps.extract-version.outputs.version }}"
       -
