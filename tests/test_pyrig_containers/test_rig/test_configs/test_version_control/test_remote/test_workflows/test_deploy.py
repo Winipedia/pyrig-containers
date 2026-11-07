@@ -59,10 +59,10 @@ class TestDeployWorkflowConfigFile:
         assert (
             step["run"]
             == rf"""podman \
-build \
---tag={version} \
---tag={latest} \
-."""
+  build \
+  --tag={version} \
+  --tag={latest} \
+  ."""
         )
 
     def test_step_login_container_registry(self) -> None:
@@ -71,10 +71,10 @@ build \
         assert (
             step["run"]
             == r'''podman \
-login \
-ghcr.io \
---username="${ACTOR}" \
---password="${TOKEN}"'''
+  login \
+  ghcr.io \
+  --username="${ACTOR}" \
+  --password="${TOKEN}"'''
         )
 
     def test_step_push_container_image_latest(self) -> None:
@@ -90,8 +90,8 @@ ghcr.io \
         assert (
             step["run"]
             == rf"""podman \
-push \
-{DeployWorkflowConfigFile.I.container_image_tag_version()}"""
+  push \
+  {DeployWorkflowConfigFile.I.container_image_tag_version()}"""
         )
 
     def test_steps_container_image(self) -> None:
