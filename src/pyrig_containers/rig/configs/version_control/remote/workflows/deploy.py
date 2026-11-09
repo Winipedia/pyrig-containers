@@ -44,7 +44,7 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             timeout_minutes=60,
         )
 
-    def job_container_image_permissions(self) -> dict[str, Any]:
+    def job_container_image_permissions(self) -> dict[str, str]:
         """Return the permissions for the container image job.
 
         Requests `contents: read` to check out the repository and
