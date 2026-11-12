@@ -27,16 +27,16 @@
     "secrets":
       "REPO_TOKEN": "${{ secrets.REPO_TOKEN }}"
     "uses": "$/.github/workflows/documentation.yml"
-  "package":
-    "name": "Package"
-    "permissions":
-      "contents": "read"
-      "id-token": "write"  # required
-    "uses": "$/.github/workflows/package.yml"
   "container-image":
     "name": "Container Image"
     "permissions":
       "contents": "read"
       "packages": "write"  # required
     "uses": "$/.github/workflows/container-image.yml"
+  "package":
+    "name": "Package"
+    "permissions":
+      "contents": "read"
+      "id-token": "write"  # required
+    "uses": "$/.github/workflows/package.yml"
 ...
