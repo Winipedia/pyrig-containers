@@ -1,0 +1,123 @@
+---
+"name": "Container Image"
+"on":
+  "workflow_call": {}
+"permissions": {}
+"concurrency":
+  "group": "Container Image-${{ github.workflow }}-${{ github.ref }}"
+  "cancel-in-progress": false
+"run-name": "Container Image"
+"jobs":
+  "build":
+    "name": "Build"
+    "permissions":
+      "contents": "read"
+    "runs-on": "ubuntu-latest"
+    "timeout-minutes": 60
+    "steps":
+      -
+        "name": "Checkout Repository"
+        "id": "checkout-repository"
+        # ryl disable-line rule:line-length
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"  # v7.0.1
+        "with":
+          "persist-credentials": false
+      -
+        "name": "Build Image"
+        "id": "build-image"
+        "run": |-
+          podman \
+            build \
+            --tag=image-tag \
+            .
+      -
+        "name": "Save Image"
+        "id": "save-image"
+        "run": |-
+          podman \
+            save \
+            --output=image.tar \
+            image-tag
+      -
+        "name": "Upload Image"
+        "id": "upload-image"
+        # ryl disable-line rule:line-length
+        "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"  # v7.0.2
+        "with":
+          "name": "image"
+          "path": "image.tar"
+          "if-no-files-found": "error"
+  "publish":
+    "name": "Publish"
+    "environment": "container-image"
+    "permissions":
+      "contents": "read"
+      "packages": "write"  # required
+    "needs":
+      - "build"
+    "runs-on": "ubuntu-latest"
+    "timeout-minutes": 60
+    "steps":
+      -
+        "name": "Checkout Repository"
+        "id": "checkout-repository"
+        # ryl disable-line rule:line-length
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"  # v7.0.1
+        "with":
+          "persist-credentials": false
+      -
+        "name": "Setup Package Manager"
+        "id": "setup-package-manager"
+        # ryl disable-line rule:line-length
+        "uses": "astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2"  # v10.3.3
+        "with":
+          "python-version": "3.15"
+      -
+        "name": "Extract Version"
+        "id": "extract-version"
+        "run": |-
+          VERSION="$(uv version --short)"
+          echo version="${VERSION}" >> "${GITHUB_OUTPUT}"
+      -
+        "name": "Download Image"
+        "id": "download-image"
+        # ryl disable-line rule:line-length
+        "uses": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"  # v8.0.2
+        "with":
+          "name": "image"
+          "path": "."
+      -
+        "name": "Load Image"
+        "id": "load-image"
+        "run": "podman load --input=image.tar"
+      -
+        "name": "Login Container Registry"
+        "id": "login-container-registry"
+        "run": |-
+          podman \
+            login \
+            ghcr.io \
+            --username="${ACTOR}" \
+            --password="${TOKEN}"
+        "env":
+          "ACTOR": "${{ github.actor }}"
+          "TOKEN": "${{ secrets.GITHUB_TOKEN }}"
+      -
+        "name": "Push Version"
+        "id": "push-version"
+        "run": |-
+          podman \
+            push \
+            image-tag \
+            ghcr.io/winipedia/pyrig-containers:"${VERSION}"
+        "env":
+          "VERSION": "${{ steps.extract-version.outputs.version }}"
+      -
+        "name": "Push Latest"
+        "id": "push-latest"
+        "run": |-
+          podman \
+            push \
+            image-tag \
+            ghcr.io/winipedia/pyrig-containers:latest
+...

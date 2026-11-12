@@ -59,7 +59,7 @@
 
 pyrig-containers integrates containers into a pyrig-managed project through three
 pieces: generation of a `Containerfile`, container tooling registered in the rig,
-and an automated step that publishes the image to the GitHub Container Registry
+and a reusable workflow that publishes the image to the GitHub Container Registry
 (GHCR) on release. This page describes each piece; see the API Reference for the
 generated, code-level documentation.
 
@@ -90,8 +90,8 @@ the only container engine this Containerfile is verified against — see below.
 
 `ContainerEngine` wraps Podman. It provides the command arguments used to
 authenticate with a registry, to build and tag an image from the
-Containerfile, and to push an individual tag. It contributes a Podman
-badge to the project's README.
+Containerfile, to save and load image archives, and to push an individual tag.
+It contributes a Podman badge to the project's README.
 
 ### Container registry
 
@@ -101,12 +101,13 @@ badge to the project's README.
 tagged image references from it. It contributes a GHCR badge to the
 project's README.
 
-### Deploy workflow
+### Container-image workflow
 
-The deploy workflow is extended with a `container-image` job. After a successful
-release it installs Podman, logs in to GHCR using the workflow actor and the
-automatic `GITHUB_TOKEN`, builds the image from the Containerfile, and pushes it
-under two tags: the released version (`:<version>`) and `:latest`.
+`ContainerImageWorkflowConfigFile` generates the reusable `container-image.yml`
+workflow, called by deploy after a successful release. Its `build` job builds
+the image and uploads an archive. The `publish` job downloads that image and
+pushes it to GHCR under the released version (`:<version>`) and `:latest`,
+using the automatic `GITHUB_TOKEN` without rebuilding.
 
 ## API Reference
 

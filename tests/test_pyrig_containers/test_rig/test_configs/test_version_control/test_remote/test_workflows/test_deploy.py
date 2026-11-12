@@ -1,4 +1,4 @@
-"""module."""
+"""Tests for the container-image deployment workflow call."""
 
 from pyrig_containers.rig.configs.version_control.remote.workflows.deploy import (
     DeployWorkflowConfigFile,
@@ -6,104 +6,20 @@ from pyrig_containers.rig.configs.version_control.remote.workflows.deploy import
 
 
 class TestDeployWorkflowConfigFile:
-    """Test class."""
-
-    def test_container_image_tag_latest(self) -> None:
-        """Test method."""
-        assert (
-            DeployWorkflowConfigFile.I.container_image_tag_latest()
-            == "ghcr.io/winipedia/pyrig-containers:latest"
-        )
-
-    def test_container_image_tag_version(self) -> None:
-        """Test method."""
-        assert (
-            DeployWorkflowConfigFile.I.container_image_tag_version()
-            == 'ghcr.io/winipedia/pyrig-containers:"${VERSION}"'
-        )
-
-    def test_insert_actor(self) -> None:
-        """Test method."""
-        assert DeployWorkflowConfigFile.I.insert_actor() == "${{ github.actor }}"
+    """Test container-image workflow integration."""
 
     def test_job_container_image(self) -> None:
-        """Test method."""
-        config = DeployWorkflowConfigFile.I.job_container_image()
-        assert config["job_id"] == "container-image"
-        assert config["permissions"] == {
-            "contents": "read",
-            "packages": "write",
-        }
-        assert "if" not in config
-        assert config["steps"] == DeployWorkflowConfigFile.I.steps_container_image()
-
-    def test_job_container_image_permissions(self) -> None:
-        """Test method."""
-        assert DeployWorkflowConfigFile.I.job_container_image_permissions() == {
-            "contents": "read",
-            "packages": "write",
-        }
+        """Check the workflow reference and forwarded permissions."""
+        job = DeployWorkflowConfigFile.I.job_container_image()
+        assert job["job_id"] == "container-image"
+        assert job["uses"] == "$/.github/workflows/container-image.yml"
+        assert job["permissions"] == {"contents": "read", "packages": "write"}
+        assert "secrets" not in job
+        assert "runs-on" not in job
+        assert "environment" not in job
+        assert "steps" not in job
 
     def test_jobs(self) -> None:
-        """Test method."""
+        """Check the container-image call is included alongside base jobs."""
         workflow = DeployWorkflowConfigFile.I
-        jobs = workflow.jobs()
-        # base documentation job is preserved and the container image job is added
-        assert workflow.job_container_image in jobs
-
-    def test_step_build_container_image(self) -> None:
-        """Test method."""
-        step = DeployWorkflowConfigFile.I.step_build_container_image()
-        version = DeployWorkflowConfigFile.I.container_image_tag_version()
-        latest = DeployWorkflowConfigFile.I.container_image_tag_latest()
-        assert (
-            step["run"]
-            == rf"""podman \
-  build \
-  --tag={version} \
-  --tag={latest} \
-  ."""
-        )
-
-    def test_step_login_container_registry(self) -> None:
-        """Test method."""
-        step = DeployWorkflowConfigFile.I.step_login_container_registry()
-        assert (
-            step["run"]
-            == r'''podman \
-  login \
-  ghcr.io \
-  --username="${ACTOR}" \
-  --password="${TOKEN}"'''
-        )
-
-    def test_step_push_container_image_latest(self) -> None:
-        """Test method."""
-        step = DeployWorkflowConfigFile.I.step_push_container_image_latest()
-        assert step["run"] == (
-            f"podman push {DeployWorkflowConfigFile.I.container_image_tag_latest()}"
-        )
-
-    def test_step_push_container_image_version(self) -> None:
-        """Test method."""
-        step = DeployWorkflowConfigFile.I.step_push_container_image_version()
-        assert (
-            step["run"]
-            == rf"""podman \
-  push \
-  {DeployWorkflowConfigFile.I.container_image_tag_version()}"""
-        )
-
-    def test_steps_container_image(self) -> None:
-        """Test method."""
-        steps = DeployWorkflowConfigFile.I.steps_container_image()
-        ids = [step["id"] for step in steps]
-        assert ids == [
-            "checkout-repository",
-            "setup-package-manager",
-            "login-container-registry",
-            "extract-version",
-            "build-container-image",
-            "push-container-image-version",
-            "push-container-image-latest",
-        ]
+        assert workflow.job_container_image in workflow.jobs()

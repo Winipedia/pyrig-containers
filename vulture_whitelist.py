@@ -2,6 +2,7 @@
 
 from pyrig.rig.configs.base.config_file import ConfigFile
 from pyrig.rig.configs.base.string_ import StringConfigFile
+from pyrig.rig.configs.base.workflow import WorkflowConfigFile
 from pyrig.rig.tools.base.tool import Tool
 
 from pyrig_containers.rig.configs.container_file import ContainerfileConfigFile
@@ -14,6 +15,8 @@ _CONFIG_FILE_OVERRIDES = (
     ConfigFile.parent_path,
     ConfigFile.stem,
     StringConfigFile.content,
+    WorkflowConfigFile.concurrency_cancel_in_progress,
+    WorkflowConfigFile.workflow_triggers,
 )
 _CONFIG_FILES = (ContainerfileConfigFile,)
 _TOOLS = (

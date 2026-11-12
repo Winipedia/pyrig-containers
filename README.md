@@ -66,8 +66,8 @@ packages your project as a container image and publishes it on every release.
   root.
 - **Container tooling** — wrappers for the container engine (Podman) and the
   GitHub Container Registry, each contributing a badge.
-- **Automatic publishing** — a deploy step that builds the image and pushes it
-  to the registry after a successful release.
+- **Automatic publishing** — deploy calls a reusable container-image workflow
+  with separate build and publish jobs after a successful release.
 
 ## Usage
 

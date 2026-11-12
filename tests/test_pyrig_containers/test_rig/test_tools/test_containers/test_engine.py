@@ -46,6 +46,12 @@ class TestContainerEngine:
             == "https://github.com/podman-container-tools/podman"
         )
 
+    def test_load_args(self) -> None:
+        """Check the archive input."""
+        assert str(ContainerEngine.I.load_args(input_="image.tar")) == (
+            "podman load --input=image.tar"
+        )
+
     def test_login_args(self) -> None:
         """Test method."""
         random_string = "something"
@@ -79,15 +85,26 @@ class TestContainerEngine:
 
     def test_push_args(self) -> None:
         """Test method."""
-        result = ContainerEngine.I.push_args(tag="ghcr.io/owner/repo:latest")
+        result = ContainerEngine.I.push_args(
+            tag="ghcr.io/owner/repo:latest",
+        )
         assert str(result) == "podman push ghcr.io/owner/repo:latest"
 
     def test_push_args_extra_args(self) -> None:
         """Test method."""
         result = ContainerEngine.I.push_args(
+            "ghcr.io/owner/repo:latest",
             "--tls-verify=false",
-            tag="ghcr.io/owner/repo:latest",
+            tag="image-tag",
         )
         assert str(result) == (
-            "podman push ghcr.io/owner/repo:latest --tls-verify=false"
+            "podman push image-tag ghcr.io/owner/repo:latest --tls-verify=false"
         )
+
+    def test_save_args(self) -> None:
+        """Check the archive format and image references."""
+        result = ContainerEngine.I.save_args(
+            image="image:latest",
+            output="image.tar",
+        )
+        assert str(result) == ("podman save --output=image.tar image:latest")

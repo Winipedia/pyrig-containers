@@ -67,9 +67,9 @@
       "id-token": "write"  # required
       "packages": "write"  # required
       "pages": "write"  # required
+    "secrets":
+      "REPO_TOKEN": "${{ secrets.REPO_TOKEN }}"
     "needs":
       - "publish"
     "uses": "$/.github/workflows/deploy.yml"
-    "secrets":
-      "REPO_TOKEN": "${{ secrets.REPO_TOKEN }}"
 ...
