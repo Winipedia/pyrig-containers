@@ -61,12 +61,6 @@ class TestContainerImageWorkflowConfigFile:
         assert "environment" not in job
         assert "needs" not in job
 
-    def test_job_build_permissions(self) -> None:
-        """Check checkout is limited to read-only access."""
-        assert ContainerImageWorkflowConfigFile.I.job_build_permissions() == {
-            "contents": "read",
-        }
-
     def test_job_publish(self) -> None:
         """Test method."""
         workflow = ContainerImageWorkflowConfigFile.I
@@ -88,17 +82,23 @@ class TestContainerImageWorkflowConfigFile:
         workflow = ContainerImageWorkflowConfigFile.I
         assert workflow.job_publish_needs() == (workflow.job_build,)
 
-    def test_job_publish_permissions(self) -> None:
-        """Test method."""
-        assert ContainerImageWorkflowConfigFile.I.job_publish_permissions() == {
-            "contents": "read",
-            "packages": "write",
-        }
-
     def test_jobs(self) -> None:
         """Test method."""
         workflow = ContainerImageWorkflowConfigFile.I
         assert workflow.jobs() == (workflow.job_build, workflow.job_publish)
+
+    def test_permissions_job_build(self) -> None:
+        """Check checkout is limited to read-only access."""
+        assert ContainerImageWorkflowConfigFile.I.permissions_job_build() == {
+            "contents": "read",
+        }
+
+    def test_permissions_job_publish(self) -> None:
+        """Test method."""
+        assert ContainerImageWorkflowConfigFile.I.permissions_job_publish() == {
+            "contents": "read",
+            "packages": "write",
+        }
 
     def test_stem(self) -> None:
         """Check the workflow filename."""

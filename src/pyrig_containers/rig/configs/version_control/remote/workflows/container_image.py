@@ -44,7 +44,7 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             self.job_publish,
             needs=self.job_publish_needs(),
             environment=self.stem(),
-            permissions=self.job_publish_permissions(),
+            permissions=self.permissions_job_publish(),
             steps=self.steps_publish(),
             timeout_minutes=60,
         )
@@ -53,7 +53,7 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         """Return the image build prerequisite."""
         return (self.job_build,)
 
-    def job_publish_permissions(self) -> dict[str, str]:
+    def permissions_job_publish(self) -> dict[str, str]:
         """Return checkout access for version extraction and registry write access."""
         return {
             **self.permission_contents(),
@@ -76,7 +76,7 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         """Build and upload a single image archive."""
         return self.job(
             self.job_build,
-            permissions=self.job_build_permissions(),
+            permissions=self.permissions_job_build(),
             steps=self.steps_build(),
             timeout_minutes=60,
         )
@@ -174,7 +174,7 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         """
         return self.insert_expression("github.actor")
 
-    def job_build_permissions(self) -> dict[str, str]:
+    def permissions_job_build(self) -> dict[str, str]:
         """Return read-only repository access for checkout."""
         return self.permission_contents()
 
