@@ -25,6 +25,7 @@
       -
         "name": "Build Image"
         "id": "build-image"
+        "shell": "bash"
         "run": |-
           podman \
             build \
@@ -33,6 +34,7 @@
       -
         "name": "Save Image"
         "id": "save-image"
+        "shell": "bash"
         "run": |-
           podman \
             save \
@@ -75,6 +77,7 @@
       -
         "name": "Extract Version"
         "id": "extract-version"
+        "shell": "bash"
         "run": |-
           VERSION="$(uv version --short)"
           echo version="${VERSION}" >> "${GITHUB_OUTPUT}"
@@ -89,10 +92,12 @@
       -
         "name": "Load Image"
         "id": "load-image"
+        "shell": "bash"
         "run": "podman load --input=image.tar"
       -
         "name": "Login Container Registry"
         "id": "login-container-registry"
+        "shell": "bash"
         "run": |-
           podman \
             login \
@@ -105,6 +110,7 @@
       -
         "name": "Push Version"
         "id": "push-version"
+        "shell": "bash"
         "run": |-
           podman \
             push \
@@ -115,6 +121,7 @@
       -
         "name": "Push Latest"
         "id": "push-latest"
+        "shell": "bash"
         "run": |-
           podman \
             push \
