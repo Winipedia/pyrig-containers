@@ -5,7 +5,7 @@ from pyrig.rig.configs.base.string_ import StringConfigFile
 from pyrig.rig.configs.base.workflow import WorkflowConfigFile
 from pyrig.rig.tools.base.tool import Tool
 
-from pyrig_containers.rig.configs.container_file import ContainerfileConfigFile
+from pyrig_containers.rig.configs.containers.file import ContainerfileConfigFile
 from pyrig_containers.rig.tools.containers.engine import ContainerEngine
 from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
 

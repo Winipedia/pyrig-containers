@@ -2,7 +2,9 @@
 
 from pathlib import Path
 
-from pyrig_containers.rig.configs.container_file import ContainerfileConfigFile
+from pyrig_containers.rig.configs.containers.file import (
+    ContainerfileConfigFile,
+)
 
 
 class TestContainerfileConfigFile:
