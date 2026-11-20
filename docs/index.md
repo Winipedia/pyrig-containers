@@ -58,11 +58,11 @@
 
 ## Overview
 
-pyrig-containers integrates containers into a pyrig-managed project through three
-pieces: generation of a `Containerfile`, container tooling registered in the rig,
-and a reusable workflow that publishes the image to the GitHub Container Registry
-(GHCR) on release. This page describes each piece; see the API Reference for the
-generated, code-level documentation.
+pyrig-containers integrates containers into a pyrig-managed project through
+container build-file generation, a Compose config, container tooling registered
+in the rig, and a reusable workflow that publishes the image to the GitHub
+Container Registry (GHCR) on release. This page describes each piece; see the API
+Reference for the generated, code-level documentation.
 
 ```bash
 uv add pyrig-containers --dev
@@ -86,6 +86,13 @@ switches to that user, copies in the source tree, installs only
 non-development dependencies with `uv`, and removes the now-unneeded metadata
 files. The entrypoint runs the project with `uv run <project-name>`. Podman is
 the only container engine this Containerfile is verified against — see below.
+
+### Compose configuration
+
+`ComposeConfigFile` generates a root-level `compose.yml` with a single `app`
+service and an empty `build` mapping. This uses the project directory as the
+build context and relies on Podman's Compose provider to discover the
+`Containerfile` automatically.
 
 ### Container engine
 

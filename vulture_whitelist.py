@@ -5,11 +5,13 @@ from pyrig.rig.configs.base.string_ import StringConfigFile
 from pyrig.rig.configs.base.workflow import WorkflowConfigFile
 from pyrig.rig.tools.base.tool import Tool
 
+from pyrig_containers.rig.configs.containers.compose import ComposeConfigFile
 from pyrig_containers.rig.configs.containers.file import ContainerfileConfigFile
 from pyrig_containers.rig.tools.containers.engine import ContainerEngine
 from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
 
 _CONFIG_FILE_OVERRIDES = (
+    ComposeConfigFile._configs,  # noqa: SLF001
     ConfigFile.extension,
     ConfigFile.extension_separator,
     ConfigFile.parent_path,
@@ -18,7 +20,10 @@ _CONFIG_FILE_OVERRIDES = (
     WorkflowConfigFile.concurrency_cancel_in_progress,
     WorkflowConfigFile.workflow_triggers,
 )
-_CONFIG_FILES = (ContainerfileConfigFile,)
+_CONFIG_FILES = (
+    ComposeConfigFile,
+    ContainerfileConfigFile,
+)
 _TOOLS = (
     ContainerEngine,
     ContainerRegistry,

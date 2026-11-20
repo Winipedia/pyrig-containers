@@ -65,6 +65,7 @@ packages your project as a container image and publishes it on every release.
 
 - **Containerfile** — a ready-to-use `Containerfile` generated at the project
   root.
+- **Compose file** — a `compose.yml` that builds the generated `Containerfile`.
 - **Container tooling** — wrappers for the container engine (Podman) and the
   GitHub Container Registry, each contributing a badge.
 - **Automatic publishing** — deploy calls a reusable container-image workflow
@@ -77,7 +78,11 @@ uv add pyrig-containers --dev
 uv run pyrig sync
 ```
 
-Building images locally requires Podman to be installed.
+For local usage, you will need to have `podman` installed on your system.
+And for the compose file you will need `podman-compose` installed.
+
+This plugin assumes Podman and although Podman and Docker are often very compatible
+with each other, this plugin only guarantees compatibility with Podman.
 
 ## Documentation
 
