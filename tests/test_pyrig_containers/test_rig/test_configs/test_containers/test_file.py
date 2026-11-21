@@ -47,9 +47,9 @@ ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
 """
         )
 
-    def test_copy_binaries(self) -> None:
+    def test_copy_required_binaries(self) -> None:
         """Test method."""
-        assert ContainerfileConfigFile.I.copy_binaries() == (
+        assert ContainerfileConfigFile.I.copy_required_binaries() == (
             "COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv"
         )
 

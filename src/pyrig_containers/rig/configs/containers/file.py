@@ -33,7 +33,7 @@ class ContainerfileConfigFile(StringConfigFile):
         return f"""{self.from_image()}
 {self.workdir()}
 
-{self.copy_binaries()}
+{self.copy_required_binaries()}
 {self.copy_required_files()}
 {self.copy_required_dirs()}
 
@@ -70,7 +70,7 @@ class ContainerfileConfigFile(StringConfigFile):
         """Return `"Containerfile"`."""
         return "Containerfile"
 
-    def copy_binaries(self) -> str:
+    def copy_required_binaries(self) -> str:
         """Return COPY instructions for the required binaries."""
         return "\n".join(
             f"COPY --from={image_url} {image_source_path} {image_destination_path}"
