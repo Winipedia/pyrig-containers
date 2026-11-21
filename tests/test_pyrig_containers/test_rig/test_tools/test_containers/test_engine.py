@@ -11,15 +11,17 @@ class TestContainerEngine:
         result = ContainerEngine.I.build_args(tags=("image:v1.0.0", "image:latest"))
         assert str(result) == ("podman build --tag=image:v1.0.0 --tag=image:latest .")
 
-    def test_build_args_custom_context(self) -> None:
-        """Test method."""
-        result = ContainerEngine.I.build_args(tags=("image:latest",), context="src")
-        assert str(result) == "podman build --tag=image:latest src"
+        custom_result = ContainerEngine.I.build_args(
+            tags=("image:latest",),
+            context="src",
+        )
+        assert str(custom_result) == "podman build --tag=image:latest src"
 
-    def test_build_args_extra_args(self) -> None:
-        """Test method."""
-        result = ContainerEngine.I.build_args("--no-cache", tags=("image:latest",))
-        assert str(result) == "podman build --tag=image:latest --no-cache ."
+        extra_result = ContainerEngine.I.build_args(
+            "--no-cache",
+            tags=("image:latest",),
+        )
+        assert str(extra_result) == "podman build --tag=image:latest --no-cache ."
 
     def test_dev_dependencies(self) -> None:
         """Test method."""
@@ -64,9 +66,6 @@ class TestContainerEngine:
             str(result)
             == f"podman login ghcr.io --username=user --password={random_string}"
         )
-
-    def test_login_args_extra_args(self) -> None:
-        """Test method."""
         random_string = "something"
         result = ContainerEngine.I.login_args(
             "--tls-verify=false",
@@ -89,9 +88,6 @@ class TestContainerEngine:
             tag="ghcr.io/owner/repo:latest",
         )
         assert str(result) == "podman push ghcr.io/owner/repo:latest"
-
-    def test_push_args_extra_args(self) -> None:
-        """Test method."""
         result = ContainerEngine.I.push_args(
             "ghcr.io/owner/repo:latest",
             "--tls-verify=false",

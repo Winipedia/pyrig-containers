@@ -20,10 +20,6 @@ class TestContainerfileConfigFile:
         """Test method."""
         assert ContainerfileConfigFile.I.base_image() == "python:3.15-slim"
 
-    def test_chown_user(self) -> None:
-        """Test method."""
-        assert "appuser:appuser" in str(ContainerfileConfigFile.I.chown_workdir_args())
-
     def test_chown_workdir_args(self) -> None:
         """Test method."""
         assert str(ContainerfileConfigFile.I.chown_workdir_args()) == (
@@ -32,33 +28,29 @@ class TestContainerfileConfigFile:
 
     def test_content(self) -> None:
         """Test method."""
-        assert ContainerfileConfigFile.I.content() == (
-            "FROM python:3.15-slim\n"
-            "WORKDIR /pyrig-containers\n"
-            "\n"
-            "COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv\n"
-            "COPY LICENSE README.md pyproject.toml uv.lock ./\n"
-            "COPY src/pyrig_containers src/pyrig_containers\n"
-            "\n"
-            "RUN uv sync --no-group=dev\n"
-            "\n"
-            "RUN useradd --create-home --uid=1000 appuser "
-            "&& chown appuser:appuser .\n"
-            "USER 1000\n"
-            "\n"
-            'ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]\n'
+        assert (
+            ContainerfileConfigFile.I.content()
+            == r"""FROM python:3.15-slim
+WORKDIR /pyrig-containers
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+COPY LICENSE README.md pyproject.toml uv.lock ./
+COPY src/pyrig_containers src/pyrig_containers
+
+RUN uv sync --no-group=dev
+
+RUN useradd --create-home --uid=1000 appuser \
+    && chown appuser:appuser .
+USER 1000
+
+ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
+"""
         )
 
     def test_copy_package_manager_binary(self) -> None:
         """Test method."""
         assert ContainerfileConfigFile.I.copy_package_manager_binary() == (
             "COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv"
-        )
-
-    def test_copy_package_manager_image(self) -> None:
-        """Test method."""
-        assert "ghcr.io/astral-sh/uv:latest" in (
-            ContainerfileConfigFile.I.copy_package_manager_binary()
         )
 
     def test_copy_required_dirs(self) -> None:
@@ -97,12 +89,6 @@ class TestContainerfileConfigFile:
         """Test method."""
         assert ContainerfileConfigFile.I.from_image() == "FROM python:3.15-slim"
 
-    def test_install_dependencies(self) -> None:
-        """Test method."""
-        assert ContainerfileConfigFile.I.run_install_dependencies() == (
-            "RUN uv sync --no-group=dev"
-        )
-
     def test_install_dependencies_args(self) -> None:
         """Test method."""
         assert str(ContainerfileConfigFile.I.install_dependencies_args()) == (
@@ -134,18 +120,10 @@ class TestContainerfileConfigFile:
 
     def test_run_add_and_chown_user(self) -> None:
         """Test method."""
-        assert ContainerfileConfigFile.I.run_add_and_chown_user() == (
-            "RUN useradd --create-home --uid=1000 appuser && chown appuser:appuser ."
-        )
-
-    def test_run_add_user(self) -> None:
-        """Test method."""
-        assert str(ContainerfileConfigFile.I.add_user_args()).startswith("useradd ")
-
-    def test_run_chown_user(self) -> None:
-        """Test method."""
-        assert ContainerfileConfigFile.I.run_add_and_chown_user().endswith(
-            "&& chown appuser:appuser .",
+        assert (
+            ContainerfileConfigFile.I.run_add_and_chown_user()
+            == r"""RUN useradd --create-home --uid=1000 appuser \
+    && chown appuser:appuser ."""
         )
 
     def test_run_install_dependencies(self) -> None:

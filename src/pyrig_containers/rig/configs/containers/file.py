@@ -109,8 +109,9 @@ class ContainerfileConfigFile(StringConfigFile):
         return f"FROM {self.base_image()}"
 
     def run_add_and_chown_user(self) -> str:
-        """Return the RUN instruction creating the user and owning the workdir."""
-        return f"RUN {self.add_user_args()} && {self.chown_workdir_args()}"
+        """Return a multiline RUN instruction creating the user and workdir owner."""
+        return rf"""RUN {self.add_user_args()} \
+    && {self.chown_workdir_args()}"""
 
     def run_install_dependencies(self) -> str:
         """Return the RUN instruction installing non-development dependencies."""
