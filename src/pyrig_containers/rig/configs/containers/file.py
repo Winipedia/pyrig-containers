@@ -1,9 +1,11 @@
 """Containerfile configuration management."""
 
 import json
+from collections import defaultdict
 from pathlib import Path
 from typing import override
 
+from pyrig.core.subprocesses import Args
 from pyrig.rig.configs.base.string_ import StringConfigFile
 from pyrig.rig.configs.community.license import LicenseConfigFile
 from pyrig.rig.configs.pyproject import PyprojectConfigFile
@@ -28,36 +30,19 @@ class ContainerfileConfigFile(StringConfigFile):
             the project's runtime dependencies, and run the project as the
             non-root `appuser` user.
         """
-        latest_python_version = PyprojectConfigFile.I.latest_possible_python_version()
-        package_root = PackageManager.I.package_root().as_posix()
-        project_name = PackageManager.I.project_name()
-        workdir = Path(project_name).as_posix()
-        app_username = "appuser"
-        entrypoint = json.dumps(list(PackageManager.I.run_args(project_name)))
-        readme_path, license_path, pyproject_path, lock_file_path = (
-            ReadmeConfigFile.I.path().as_posix(),
-            LicenseConfigFile.I.path().as_posix(),
-            PyprojectConfigFile.I.path().as_posix(),
-            PackageManager.I.lock_file().as_posix(),
-        )
-        copy_files = f"{readme_path} {license_path} {pyproject_path} {lock_file_path}"
-        install_dependencies_no_dev = (
-            PackageManager.I.install_dependencies_no_dev_args()
-        )
-        image_url, image_source_path, image_destination_path = (
-            PackageManager.I.container_image()
-        )
-        return f"""FROM python:{latest_python_version}-slim
-WORKDIR /{workdir}
-COPY --from={image_url} {image_source_path} {image_destination_path}
-COPY {copy_files} ./
-RUN useradd --create-home --uid=1000 {app_username}
-RUN chown --recursive {app_username}:{app_username} .
-USER {app_username}
-COPY --chown={app_username}:{app_username} {package_root} {package_root}
-RUN {install_dependencies_no_dev}
-RUN rm {copy_files}
-ENTRYPOINT {entrypoint}
+        return f"""{self.from_image()}
+{self.workdir()}
+
+{self.copy_package_manager_binary()}
+{self.copy_required_files()}
+{self.copy_required_dirs()}
+
+{self.run_install_dependencies()}
+
+{self.run_add_and_chown_user()}
+{self.user()}
+
+{self.entrypoint()}
 """
 
     @override
@@ -84,3 +69,112 @@ ENTRYPOINT {entrypoint}
     def stem(self) -> str:
         """Return `"Containerfile"`."""
         return "Containerfile"
+
+    def copy_package_manager_binary(self) -> str:
+        """Return the instruction to copy the package manager binary."""
+        image_url, image_source_path, image_destination_path = (
+            PackageManager.I.container_image()
+        )
+        return f"COPY --from={image_url} {image_source_path} {image_destination_path}"
+
+    def copy_required_dirs(self) -> str:
+        """Return COPY instructions for the required directories."""
+        steps = (
+            f"COPY {d.as_posix()} {d.as_posix()}" for d in sorted(self.required_dirs())
+        )
+        return "\n".join(steps)
+
+    def copy_required_files(self) -> str:
+        """Return COPY instructions grouping required files by parent directory.
+
+        Paths are expected to be relative to the build context and contain no
+        spaces. Destination directories retain their relative paths.
+        """
+        by_dir: defaultdict[str, list[str]] = defaultdict(list)
+        for path in self.required_files():
+            parent = f"{path.parent.as_posix()}/"
+            by_dir[parent].append(path.as_posix())
+        steps = (
+            f"COPY {' '.join(sorted(srcs))} {dst}"
+            for dst, srcs in sorted(by_dir.items())
+        )
+        return "\n".join(steps)
+
+    def entrypoint(self) -> str:
+        """Return the JSON-form ENTRYPOINT instruction."""
+        return f"ENTRYPOINT {json.dumps(list(self.entrypoint_args()))}"
+
+    def from_image(self) -> str:
+        """Return the FROM instruction for the base image."""
+        return f"FROM {self.base_image()}"
+
+    def run_add_and_chown_user(self) -> str:
+        """Return the RUN instruction creating the user and owning the workdir."""
+        return f"RUN {self.add_user_args()} && {self.chown_workdir_args()}"
+
+    def run_install_dependencies(self) -> str:
+        """Return the RUN instruction installing non-development dependencies."""
+        return f"RUN {self.install_dependencies_args()}"
+
+    def user(self) -> str:
+        """Return the USER instruction selecting the application user ID."""
+        return f"USER {self.user_id()}"
+
+    def workdir(self) -> str:
+        """Return the WORKDIR instruction for the project directory."""
+        return f"WORKDIR /{self.working_dir().as_posix()}"
+
+    def add_user_args(self) -> Args:
+        """Return arguments to create the application user and its home directory."""
+        return Args(
+            "useradd",
+            "--create-home",
+            f"--uid={self.user_id()}",
+            self.username(),
+        )
+
+    def base_image(self) -> str:
+        """Return the Python slim image for the latest supported Python version."""
+        return f"python:{PyprojectConfigFile.I.latest_possible_python_version()}-slim"
+
+    def chown_workdir_args(self) -> Args:
+        """Return arguments to give the application user workdir ownership."""
+        username = self.username()
+        return Args("chown", f"{username}:{username}", Path().as_posix())
+
+    def entrypoint_args(self) -> Args:
+        """Return arguments to run the project without syncing dependencies."""
+        return PackageManager.I.run_no_install_args(*self.project_command())
+
+    def install_dependencies_args(self) -> Args:
+        """Return arguments to install dependencies without the dev group."""
+        return PackageManager.I.install_dependencies_no_dev_args()
+
+    def required_dirs(self) -> tuple[Path, ...]:
+        """Return source directories to copy from the build context."""
+        return (PackageManager.I.package_root(),)
+
+    def required_files(self) -> tuple[Path, ...]:
+        """Return metadata and lock files to copy from the build context."""
+        return (
+            ReadmeConfigFile.I.path(),
+            LicenseConfigFile.I.path(),
+            PyprojectConfigFile.I.path(),
+            PackageManager.I.lock_file(),
+        )
+
+    def working_dir(self) -> Path:
+        """Return the project name used as the container's working directory."""
+        return Path(PackageManager.I.project_name())
+
+    def project_command(self) -> Args:
+        """Return the project command invoked by the container entrypoint."""
+        return Args(PackageManager.I.project_name())
+
+    def user_id(self) -> int:
+        """Return the application user's numeric ID, 1000."""
+        return 1000
+
+    def username(self) -> str:
+        """Return the application user's name, `appuser`."""
+        return "appuser"

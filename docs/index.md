@@ -80,12 +80,11 @@ to install podman locally as well.
 starts from a slim Python base image matching the highest Python version the
 project supports, then copies in the `uv` binary — sourced via a
 `PackageManager` override (`container_image`) that supplies the image and its
-paths — followed by the project's metadata and lock file. After creating a
-non-root `appuser` (UID 1000) and giving it ownership of the copied files, it
-switches to that user, copies in the source tree, installs only
-non-development dependencies with `uv`, and removes the now-unneeded metadata
-files. The entrypoint runs the project with `uv run <project-name>`. Podman is
-the only container engine this Containerfile is verified against — see below.
+paths — followed by the project's metadata, lock file, and source package.
+It installs only non-development dependencies with `uv`, then creates a
+non-root `appuser` (UID 1000), assigns it ownership of the workdir, and
+switches to that user. The entrypoint runs `uv run --no-sync <project-name>`
+without re-running dependency synchronization.
 
 ### Compose configuration
 

@@ -21,7 +21,11 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
         return (*super().jobs(), self.job_container_image)
 
     def job_container_image(self) -> dict[str, Any]:
-        """Call the reusable container-image workflow."""
+        """Call the reusable container-image workflow.
+
+        Returns:
+            Reusable workflow call job configuration.
+        """
         return self.job_workflow_call(
             self.job_container_image,
             workflow=ContainerImageWorkflowConfigFile,

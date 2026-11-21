@@ -39,7 +39,11 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         return "container-image"
 
     def job_publish(self) -> dict[str, Any]:
-        """Load and publish the built image after environment approval."""
+        """Load and publish the built image after environment approval.
+
+        Returns:
+            Publish job configuration.
+        """
         return self.job(
             self.job_publish,
             needs=self.job_publish_needs(),
@@ -61,7 +65,11 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         }
 
     def steps_publish(self) -> list[dict[str, Any]]:
-        """Prepare the version and image, then authenticate and push both tags."""
+        """Prepare the version and image, then authenticate and push both tags.
+
+        Returns:
+            Ordered publish job steps.
+        """
         return [
             *self.steps_core_setup(),
             self.step_extract_version(),
@@ -73,7 +81,11 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         ]
 
     def job_build(self) -> dict[str, Any]:
-        """Build and upload a single image archive."""
+        """Build and upload a single image archive.
+
+        Returns:
+            Build job configuration.
+        """
         return self.job(
             self.job_build,
             permissions=self.permissions_job_build(),
@@ -82,7 +94,11 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         )
 
     def step_download_image(self) -> dict[str, Any]:
-        """Download the image archive into its expected directory."""
+        """Download the image archive into its expected directory.
+
+        Returns:
+            Artifact download step.
+        """
         return self.step_download_artifact(
             self.step_download_image,
             name=self.image_artifact_name(),
@@ -90,7 +106,11 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         )
 
     def step_load_image(self) -> dict[str, Any]:
-        """Load the image archive and restore its local tag."""
+        """Load the image archive and restore its local tag.
+
+        Returns:
+            Image load step.
+        """
         return self.step(
             self.step_load_image,
             run=str(
@@ -155,7 +175,11 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         )
 
     def container_image_tag_latest(self) -> str:
-        """Build the project's image reference tagged `latest`."""
+        """Build the project's image reference tagged `latest`.
+
+        Returns:
+            Image reference with the `latest` tag.
+        """
         return ContainerRegistry.I.image_tag("latest")
 
     def container_image_tag_version(self) -> str:
@@ -179,7 +203,11 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         return self.permission_contents()
 
     def steps_build(self) -> list[dict[str, Any]]:
-        """Check out the project, build the image, and upload its archive."""
+        """Check out the project, build the image, and upload its archive.
+
+        Returns:
+            Ordered build job steps.
+        """
         return [
             self.step_checkout_repository(),
             self.step_build_image(),
@@ -203,7 +231,11 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         )
 
     def step_save_image(self) -> dict[str, Any]:
-        """Save the locally tagged image to a portable archive."""
+        """Save the locally tagged image to a portable archive.
+
+        Returns:
+            Image save step.
+        """
         return self.step(
             self.step_save_image,
             run=ContainerEngine.I.save_args(
@@ -213,7 +245,11 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         )
 
     def step_upload_image(self) -> dict[str, Any]:
-        """Upload the image archive for the publish job."""
+        """Upload the image archive for the publish job.
+
+        Returns:
+            Artifact upload step.
+        """
         return self.step_upload_artifact(
             self.step_upload_image,
             name=self.image_artifact_name(),
