@@ -47,9 +47,9 @@ ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
 """
         )
 
-    def test_copy_package_manager_binary(self) -> None:
+    def test_copy_binaries(self) -> None:
         """Test method."""
-        assert ContainerfileConfigFile.I.copy_package_manager_binary() == (
+        assert ContainerfileConfigFile.I.copy_binaries() == (
             "COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv"
         )
 
@@ -102,6 +102,12 @@ ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
     def test_project_command(self) -> None:
         """Test method."""
         assert str(ContainerfileConfigFile.I.project_command()) == "pyrig-containers"
+
+    def test_required_binaries(self) -> None:
+        """Test method."""
+        assert ContainerfileConfigFile.I.required_binaries() == (
+            ("ghcr.io/astral-sh/uv:latest", "/uv", "/usr/local/bin/uv"),
+        )
 
     def test_required_dirs(self) -> None:
         """Test method."""

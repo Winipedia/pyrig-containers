@@ -17,8 +17,8 @@ from pyrig_containers.rig.tools.packages.manager import PackageManager
 class ContainerfileConfigFile(StringConfigFile):
     """The project's `Containerfile`, built from a Python slim base image.
 
-    Copies in the uv binary, installs runtime dependencies with uv, and runs
-    the project as a non-root user (`appuser`, UID 1000).
+    Copies in required binaries, installs runtime dependencies with uv, and
+    runs the project as a non-root user (`appuser`, UID 1000).
     """
 
     @override
@@ -26,14 +26,14 @@ class ContainerfileConfigFile(StringConfigFile):
         """Build the required `Containerfile` text.
 
         Returns:
-            Dockerfile instructions that copy in the `uv` binary, install
-            the project's runtime dependencies, and run the project as the
-            non-root `appuser` user.
+            Containerfile instructions that copy in required binaries,
+            install the project's runtime dependencies, and run the project
+            as the non-root `appuser` user.
         """
         return f"""{self.from_image()}
 {self.workdir()}
 
-{self.copy_package_manager_binary()}
+{self.copy_binaries()}
 {self.copy_required_files()}
 {self.copy_required_dirs()}
 
@@ -70,19 +70,20 @@ class ContainerfileConfigFile(StringConfigFile):
         """Return `"Containerfile"`."""
         return "Containerfile"
 
-    def copy_package_manager_binary(self) -> str:
-        """Return the instruction to copy the package manager binary."""
-        image_url, image_source_path, image_destination_path = (
-            PackageManager.I.container_image()
+    def copy_binaries(self) -> str:
+        """Return COPY instructions for the required binaries."""
+        return "\n".join(
+            f"COPY --from={image_url} {image_source_path} {image_destination_path}"
+            for image_url, image_source_path, image_destination_path in sorted(
+                self.required_binaries(),
+            )
         )
-        return f"COPY --from={image_url} {image_source_path} {image_destination_path}"
 
     def copy_required_dirs(self) -> str:
         """Return COPY instructions for the required directories."""
-        steps = (
+        return "\n".join(
             f"COPY {d.as_posix()} {d.as_posix()}" for d in sorted(self.required_dirs())
         )
-        return "\n".join(steps)
 
     def copy_required_files(self) -> str:
         """Return COPY instructions grouping required files by parent directory.
@@ -94,11 +95,10 @@ class ContainerfileConfigFile(StringConfigFile):
         for path in self.required_files():
             parent = f"{path.parent.as_posix()}/"
             by_dir[parent].append(path.as_posix())
-        steps = (
+        return "\n".join(
             f"COPY {' '.join(sorted(srcs))} {dst}"
             for dst, srcs in sorted(by_dir.items())
         )
-        return "\n".join(steps)
 
     def entrypoint(self) -> str:
         """Return the JSON-form ENTRYPOINT instruction."""
@@ -150,6 +150,10 @@ class ContainerfileConfigFile(StringConfigFile):
     def install_dependencies_args(self) -> Args:
         """Return arguments to install dependencies without the dev group."""
         return PackageManager.I.install_dependencies_no_dev_args()
+
+    def required_binaries(self) -> tuple[tuple[str, str, str], ...]:
+        """Return image and paths for binaries copied into the container."""
+        return (PackageManager.I.container_binary_copy_spec(),)
 
     def required_dirs(self) -> tuple[Path, ...]:
         """Return source directories to copy from the build context."""
