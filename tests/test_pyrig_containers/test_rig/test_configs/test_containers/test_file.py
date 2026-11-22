@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from pyrig_containers.rig.configs.containers.file import (
     ContainerfileConfigFile,
 )
@@ -36,6 +38,8 @@ WORKDIR /pyrig-containers
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 COPY LICENSE README.md pyproject.toml uv.lock ./
 COPY src/pyrig_containers src/pyrig_containers
+
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 
 RUN uv sync --no-group=dev
 
@@ -77,6 +81,21 @@ ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
             "uv run --no-sync pyrig-containers"
         )
 
+    def test_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test method."""
+        monkeypatch.setattr(
+            ContainerfileConfigFile,
+            "environments",
+            lambda _self: ({"FIRST": "1", "SECOND": "2"}, {"THIRD": "3"}),
+        )
+        assert ContainerfileConfigFile.I.env() == ("ENV FIRST=1 SECOND=2\nENV THIRD=3")
+
+    def test_environments(self) -> None:
+        """Test method."""
+        assert ContainerfileConfigFile.I.environments() == (
+            {"PYTHONUNBUFFERED": "1", "PYTHONDONTWRITEBYTECODE": "1"},
+        )
+
     def test_extension(self) -> None:
         """Test method."""
         assert ContainerfileConfigFile.I.extension() == ""
@@ -102,6 +121,13 @@ ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
     def test_project_command(self) -> None:
         """Test method."""
         assert str(ContainerfileConfigFile.I.project_command()) == "pyrig-containers"
+
+    def test_python_environment(self) -> None:
+        """Test method."""
+        assert ContainerfileConfigFile.I.python_environment() == {
+            "PYTHONUNBUFFERED": "1",
+            "PYTHONDONTWRITEBYTECODE": "1",
+        }
 
     def test_required_binaries(self) -> None:
         """Test method."""

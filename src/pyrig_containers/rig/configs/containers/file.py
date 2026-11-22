@@ -37,6 +37,8 @@ class ContainerfileConfigFile(StringConfigFile):
 {self.copy_required_files()}
 {self.copy_required_dirs()}
 
+{self.env()}
+
 {self.run_install_dependencies()}
 
 {self.run_add_and_chown_user()}
@@ -104,6 +106,13 @@ class ContainerfileConfigFile(StringConfigFile):
         """Return the JSON-form ENTRYPOINT instruction."""
         return f"ENTRYPOINT {json.dumps(list(self.entrypoint_args()))}"
 
+    def env(self) -> str:
+        """Return ENV instructions for the configured environment groups."""
+        return "\n".join(
+            f"ENV {' '.join(f'{key}={value}' for key, value in env.items())}"
+            for env in self.environments()
+        )
+
     def from_image(self) -> str:
         """Return the FROM instruction for the base image."""
         return f"FROM {self.base_image()}"
@@ -147,6 +156,10 @@ class ContainerfileConfigFile(StringConfigFile):
         """Return arguments to run the project without syncing dependencies."""
         return PackageManager.I.run_no_install_args(*self.project_command())
 
+    def environments(self) -> tuple[dict[str, str], ...]:
+        """Return the environment groups to include in the container."""
+        return (self.python_environment(),)
+
     def install_dependencies_args(self) -> Args:
         """Return arguments to install dependencies without the dev group."""
         return PackageManager.I.install_dependencies_no_dev_args()
@@ -175,6 +188,13 @@ class ContainerfileConfigFile(StringConfigFile):
     def project_command(self) -> Args:
         """Return the project command invoked by the container entrypoint."""
         return Args(PackageManager.I.project_name())
+
+    def python_environment(self) -> dict[str, str]:
+        """Return the Python environment settings used in the container."""
+        return {
+            "PYTHONUNBUFFERED": "1",
+            "PYTHONDONTWRITEBYTECODE": "1",
+        }
 
     def user_id(self) -> int:
         """Return the application user's numeric ID, 1000."""

@@ -86,12 +86,16 @@ non-root `appuser` (UID 1000), assigns it ownership of the workdir, and
 switches to that user. The entrypoint runs `uv run --no-sync <project-name>`
 without re-running dependency synchronization.
 
+The image sets `PYTHONUNBUFFERED=1` and `PYTHONDONTWRITEBYTECODE=1` before
+installing dependencies; these settings also apply when the container runs.
+
 ### Compose configuration
 
-`ComposeConfigFile` generates a root-level `compose.yml` with a single `app`
-service and an empty `build` mapping. This uses the project directory as the
-build context and relies on Podman's Compose provider to discover the
-`Containerfile` automatically.
+`ComposeConfigFile` generates a root-level `compose.yml` with the package
+project name and a single `app` service. The service uses the project directory
+as its build context and relies on Podman's Compose provider to discover the
+`Containerfile` automatically. It drops all Linux capabilities and enables
+`no-new-privileges` at runtime.
 
 ### Container engine
 
