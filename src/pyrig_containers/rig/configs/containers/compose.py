@@ -26,29 +26,21 @@ class ComposeConfigFile(YMLDictConfigFile):
         return {
             "name": self.name(),
             "services": {
-                **self.app_service(),
+                **self.service_app(),
             },
         }
-
-    def app_service(self) -> dict[str, Any]:
-        """Return the app service."""
-        return self.service(
-            "app",
-            before=self.app_service_before(),
-            after=self.app_service_after(),
-        )
 
     def name(self) -> str:
         """Return the Compose project name derived from the package manager."""
         return PackageManager.I.project_name().lower()
 
-    def app_service_after(self) -> dict[str, Any]:
-        """Return the app service's settings placed after the defaults."""
-        return {}
-
-    def app_service_before(self) -> dict[str, Any]:
-        """Return the app service's settings placed before the defaults."""
-        return {"build": {}}
+    def service_app(self) -> dict[str, Any]:
+        """Return the app service."""
+        return self.service(
+            "app",
+            before=self.service_app_before(),
+            after=self.service_app_after(),
+        )
 
     def service(
         self,
@@ -75,3 +67,11 @@ class ComposeConfigFile(YMLDictConfigFile):
                 **(after or {}),
             },
         }
+
+    def service_app_after(self) -> dict[str, Any]:
+        """Return the app service's settings placed after the defaults."""
+        return {}
+
+    def service_app_before(self) -> dict[str, Any]:
+        """Return the app service's settings placed before the defaults."""
+        return {"build": {}}

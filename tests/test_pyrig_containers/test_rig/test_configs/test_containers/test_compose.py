@@ -21,24 +21,6 @@ class TestComposeConfigFile:
             },
         }
 
-    def test_app_service(self) -> None:
-        """Test method."""
-        assert ComposeConfigFile.I.app_service() == {
-            "app": {
-                "build": {},
-                "cap_drop": ["ALL"],
-                "security_opt": ["no-new-privileges:true"],
-            },
-        }
-
-    def test_app_service_after(self) -> None:
-        """Test method."""
-        assert ComposeConfigFile.I.app_service_after() == {}
-
-    def test_app_service_before(self) -> None:
-        """Test method."""
-        assert ComposeConfigFile.I.app_service_before() == {"build": {}}
-
     def test_name(self) -> None:
         """Test method."""
         assert ComposeConfigFile.I.name() == "pyrig-containers"
@@ -67,6 +49,24 @@ class TestComposeConfigFile:
                 "security_opt": ["no-new-privileges:true"],
             },
         }
+
+    def test_service_app(self) -> None:
+        """Test method."""
+        assert ComposeConfigFile.I.service_app() == {
+            "app": {
+                "build": {},
+                "cap_drop": ["ALL"],
+                "security_opt": ["no-new-privileges:true"],
+            },
+        }
+
+    def test_service_app_after(self) -> None:
+        """Test method."""
+        assert ComposeConfigFile.I.service_app_after() == {}
+
+    def test_service_app_before(self) -> None:
+        """Test method."""
+        assert ComposeConfigFile.I.service_app_before() == {"build": {}}
 
     def test_stem(self) -> None:
         """Test method."""
