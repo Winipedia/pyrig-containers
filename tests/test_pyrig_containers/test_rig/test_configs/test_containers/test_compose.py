@@ -31,6 +31,14 @@ class TestComposeConfigFile:
             },
         }
 
+    def test_app_service_after(self) -> None:
+        """Test method."""
+        assert ComposeConfigFile.I.app_service_after() == {}
+
+    def test_app_service_before(self) -> None:
+        """Test method."""
+        assert ComposeConfigFile.I.app_service_before() == {"build": {}}
+
     def test_name(self) -> None:
         """Test method."""
         assert ComposeConfigFile.I.name() == "pyrig-containers"
