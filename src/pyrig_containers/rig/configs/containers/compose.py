@@ -65,6 +65,7 @@ class ComposeConfigFile(YMLDictConfigFile):
         method: MethodType,
         *,
         image: str | None = None,
+        pull_policy: str | None = None,
         build: str | dict[str, Any] | None = None,
         entrypoint: str | list[str] | None = None,
         command: str | list[str] | None = None,
@@ -89,6 +90,7 @@ class ComposeConfigFile(YMLDictConfigFile):
         Args:
             method: The service method.
             image: Image name.
+            pull_policy: Image pull policy.
             build: Build context or build configuration.
             entrypoint: Entrypoint overriding the image default.
             command: Command overriding the image default.
@@ -114,6 +116,8 @@ class ComposeConfigFile(YMLDictConfigFile):
         settings: dict[str, Any] = {self.SERVICE_NAME_KEY: self.service_name(method)}
         if image is not None:
             settings["image"] = image
+        if pull_policy is not None:
+            settings["pull_policy"] = pull_policy
         if build is not None:
             settings["build"] = build
         if entrypoint is not None:

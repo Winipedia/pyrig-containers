@@ -45,6 +45,19 @@ class TestComposeConfigFile:
             "cap_drop": ["ALL"],
             "security_opt": ["no-new-privileges:true"],
         }
+        assert compose.service(
+            compose.service_app,
+            image="example",
+            pull_policy="always",
+            build={},
+        ) == {
+            "service_name": "app",
+            "image": "example",
+            "pull_policy": "always",
+            "build": {},
+            "cap_drop": ["ALL"],
+            "security_opt": ["no-new-privileges:true"],
+        }
         assert compose.service(compose.service_app) == {
             "service_name": "app",
             "cap_drop": ["ALL"],
@@ -56,6 +69,7 @@ class TestComposeConfigFile:
             security_opt=[],
             cap_drop=[],
             cap_add=["NET_BIND_SERVICE"],
+            pull_policy="missing",
             read_only=False,
             labels=[],
             restart="no",
@@ -76,6 +90,7 @@ class TestComposeConfigFile:
         expected = {
             "service_name": "app",
             "image": "example",
+            "pull_policy": "missing",
             "build": {},
             "entrypoint": [],
             "command": "",
