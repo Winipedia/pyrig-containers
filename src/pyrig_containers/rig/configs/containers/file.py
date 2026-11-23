@@ -10,8 +10,11 @@ from pyrig.rig.configs.base.string_ import StringConfigFile
 from pyrig.rig.configs.community.license import LicenseConfigFile
 from pyrig.rig.configs.pyproject import PyprojectConfigFile
 from pyrig.rig.configs.readme import ReadmeConfigFile
+from pyrig.rig.tools.packages.manager import PackageManager
 
-from pyrig_containers.rig.tools.packages.manager import PackageManager
+from pyrig_containers.rig.tools.packages.manager import (
+    PackageManager as ContainersPackageManager,
+)
 
 
 class ContainerfileConfigFile(StringConfigFile):
@@ -166,7 +169,7 @@ class ContainerfileConfigFile(StringConfigFile):
 
     def required_binaries(self) -> tuple[tuple[str, str, str], ...]:
         """Return image and paths for binaries copied into the container."""
-        return (PackageManager.I.container_binary_copy_spec(),)
+        return (ContainersPackageManager.I.container_binary_copy_spec(),)
 
     def required_dirs(self) -> tuple[Path, ...]:
         """Return source directories to copy from the build context."""
