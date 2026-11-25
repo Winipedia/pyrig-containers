@@ -39,15 +39,16 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 COPY LICENSE README.md pyproject.toml uv.lock ./
 COPY src/pyrig_containers src/pyrig_containers
 
-ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+ENV UV_COMPILE_BYTECODE=1 UV_LOCKED=1 UV_NO_EDITABLE=1 UV_NO_GROUP=dev UV_NO_SYNC=1
 
-RUN uv sync --no-group=dev
+RUN uv sync
 
 RUN useradd --create-home --uid=1000 appuser \
     && chown appuser:appuser .
 USER 1000
 
-ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
+ENTRYPOINT ["uv", "run", "pyrig-containers"]
 """
         )
 
@@ -72,13 +73,13 @@ ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
     def test_entrypoint(self) -> None:
         """Test method."""
         assert ContainerfileConfigFile.I.entrypoint() == (
-            'ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]'
+            'ENTRYPOINT ["uv", "run", "pyrig-containers"]'
         )
 
     def test_entrypoint_args(self) -> None:
         """Test method."""
         assert str(ContainerfileConfigFile.I.entrypoint_args()) == (
-            "uv run --no-sync pyrig-containers"
+            "uv run pyrig-containers"
         )
 
     def test_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -86,7 +87,7 @@ ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
         monkeypatch.setattr(
             ContainerfileConfigFile,
             "environments",
-            lambda _self: ({"FIRST": "1", "SECOND": "2"}, {"THIRD": "3"}),
+            lambda _self: ({"SECOND": "2", "FIRST": "1"}, {"THIRD": "3"}),
         )
         assert ContainerfileConfigFile.I.env() == ("ENV FIRST=1 SECOND=2\nENV THIRD=3")
 
@@ -94,6 +95,13 @@ ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
         """Test method."""
         assert ContainerfileConfigFile.I.environments() == (
             {"PYTHONUNBUFFERED": "1", "PYTHONDONTWRITEBYTECODE": "1"},
+            {
+                "UV_COMPILE_BYTECODE": "1",
+                "UV_LOCKED": "1",
+                "UV_NO_EDITABLE": "1",
+                "UV_NO_GROUP": "dev",
+                "UV_NO_SYNC": "1",
+            },
         )
 
     def test_extension(self) -> None:
@@ -110,9 +118,17 @@ ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
 
     def test_install_dependencies_args(self) -> None:
         """Test method."""
-        assert str(ContainerfileConfigFile.I.install_dependencies_args()) == (
-            "uv sync --no-group=dev"
-        )
+        assert str(ContainerfileConfigFile.I.install_dependencies_args()) == ("uv sync")
+
+    def test_package_manager_environment(self) -> None:
+        """Test the package manager environment settings."""
+        assert ContainerfileConfigFile.I.package_manager_environment() == {
+            "UV_COMPILE_BYTECODE": "1",
+            "UV_LOCKED": "1",
+            "UV_NO_EDITABLE": "1",
+            "UV_NO_GROUP": "dev",
+            "UV_NO_SYNC": "1",
+        }
 
     def test_parent_path(self) -> None:
         """Test method."""
@@ -160,9 +176,7 @@ ENTRYPOINT ["uv", "run", "--no-sync", "pyrig-containers"]
 
     def test_run_install_dependencies(self) -> None:
         """Test method."""
-        assert ContainerfileConfigFile.I.run_install_dependencies() == (
-            "RUN uv sync --no-group=dev"
-        )
+        assert ContainerfileConfigFile.I.run_install_dependencies() == ("RUN uv sync")
 
     def test_stem(self) -> None:
         """Test method."""

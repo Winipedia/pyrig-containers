@@ -112,7 +112,7 @@ class ContainerfileConfigFile(StringConfigFile):
     def env(self) -> str:
         """Return ENV instructions for the configured environment groups."""
         return "\n".join(
-            f"ENV {' '.join(f'{key}={value}' for key, value in env.items())}"
+            f"ENV {' '.join(f'{key}={value}' for key, value in sorted(env.items()))}"
             for env in self.environments()
         )
 
@@ -156,16 +156,16 @@ class ContainerfileConfigFile(StringConfigFile):
         return Args("chown", f"{username}:{username}", Path().as_posix())
 
     def entrypoint_args(self) -> Args:
-        """Return arguments to run the project without syncing dependencies."""
-        return PackageManager.I.run_no_install_args(*self.project_command())
+        """Return arguments to run the project command with uv."""
+        return PackageManager.I.run_args(*self.project_command())
 
     def environments(self) -> tuple[dict[str, str], ...]:
         """Return the environment groups to include in the container."""
-        return (self.python_environment(),)
+        return (self.python_environment(), self.package_manager_environment())
 
     def install_dependencies_args(self) -> Args:
-        """Return arguments to install dependencies without the dev group."""
-        return PackageManager.I.install_dependencies_no_dev_args()
+        """Return arguments to install the project's dependencies."""
+        return PackageManager.I.install_dependencies_args()
 
     def required_binaries(self) -> tuple[tuple[str, str, str], ...]:
         """Return image and paths for binaries copied into the container."""
@@ -187,6 +187,10 @@ class ContainerfileConfigFile(StringConfigFile):
     def working_dir(self) -> Path:
         """Return the project name used as the container's working directory."""
         return Path(PackageManager.I.project_name())
+
+    def package_manager_environment(self) -> dict[str, str]:
+        """Return the environment settings for the package manager."""
+        return PackageManager.I.production_environment()
 
     def project_command(self) -> Args:
         """Return the project command invoked by the container entrypoint."""

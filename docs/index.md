@@ -83,11 +83,16 @@ project supports, then copies in the `uv` binary — sourced via a
 paths — followed by the project's metadata, lock file, and source package.
 It installs only non-development dependencies with `uv`, then creates a
 non-root `appuser` (UID 1000), assigns it ownership of the workdir, and
-switches to that user. The entrypoint runs `uv run --no-sync <project-name>`
-without re-running dependency synchronization.
+switches to that user. The entrypoint runs `uv run <project-name>`;
+`UV_NO_SYNC=1` prevents dependency synchronization at runtime.
+The image also sets `UV_NO_GROUP=dev` to omit development dependencies,
+`UV_LOCKED=1` to require the lock file to match the project metadata, and
+`UV_NO_EDITABLE=1` to install the project as a regular package rather than
+editable source. Together with `UV_COMPILE_BYTECODE=1`, this lets uv compile
+the project and its dependencies to bytecode during installation.
 
-The image sets `PYTHONUNBUFFERED=1` and `PYTHONDONTWRITEBYTECODE=1` before
-installing dependencies; these settings also apply when the container runs.
+The image sets `PYTHONUNBUFFERED=1` and `PYTHONDONTWRITEBYTECODE=1` as well;
+these Python settings and the uv settings apply when the container runs.
 
 ### Compose configuration
 
