@@ -56,6 +56,8 @@ def test_execute_compose_up(  # noqa: PLR0913
     Args(
         "env",
         env,
+        "uvx",
+        "--from=podman-compose",
         "podman",
         "compose",
         "--file=compose.yml",
