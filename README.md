@@ -61,26 +61,6 @@
 pyrig-containers is a [pyrig](https://github.com/Winipedia/pyrig) plugin that
 packages your project as a container image and publishes it on every release.
 
-## What it adds
-
-- **Containerfile** — a ready-to-use `Containerfile` generated at the project
-  root.
-- **Compose files** — a shared `compose.yml` and overrides for building locally
-  or pulling the published image.
-- **Compose up script** — a `compose-up.sh` script to simplify running Compose
-  commands with the correct files and arguments.
-- **Container tooling** — wrappers for the container engine (Podman) and the
-  GitHub Container Registry, each contributing a badge.
-- **Automatic publishing** — deploy calls a reusable container-image workflow
-  with separate build and publish jobs after a successful release.
-
-## Usage
-
-```bash
-uv add pyrig-containers --dev
-uv run pyrig sync
-```
-
 ## Requirements
 
 In addition to pyrig's requirements, you will need:
@@ -100,6 +80,26 @@ bash compose-up.sh pull
 
 This plugin targets Podman with `podman-compose`.
 We do not guarantee compatibility with Docker or other container engines.
+
+## What it adds
+
+- **Containerfile** — a ready-to-use `Containerfile` generated at the project
+  root.
+- **Compose files** — a shared `compose.yml` and overrides for building locally
+  or pulling the published image.
+- **Compose up script** — a `compose-up.sh` script to simplify running Compose
+  commands with the correct files and arguments.
+- **Container tooling** — wrappers for the container engine (Podman) and the
+  GitHub Container Registry, each contributing a badge.
+- **Automatic publishing** — deploy calls a reusable container-image workflow
+  with separate build and publish jobs after a successful release.
+
+## Usage
+
+```bash
+uv add pyrig-containers --dev
+uv run pyrig sync
+```
 
 ## Documentation
 
