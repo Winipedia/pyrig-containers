@@ -46,6 +46,8 @@ def test_execute_compose_up(  # noqa: PLR0913
     args = Args(
         "env",
         env,
+        "uvx",
+        "--from=podman-compose",
         "bash",
         "compose-up.sh",
         mode,
