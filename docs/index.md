@@ -69,8 +69,14 @@ uv add pyrig-containers --dev
 uv run pyrig sync
 ```
 
-If you want to locally build images or do other container actions you will need
-to install podman locally as well.
+## Requirements
+
+In addition to pyrig's requirements, you will need:
+
+- `podman` — the container engine used for building and running images.
+- `podman-compose` (optional) — only needed if you compose up outside of the
+project's virtual environment as this plugin automatically adds it to your
+development dependencies.
 
 ## Components
 
@@ -103,16 +109,19 @@ enables `no-new-privileges` at runtime. `ComposeBuildConfigFile` generates the
 `ComposePullConfigFile` generates the `compose.pull.yml` override, which selects
 the registry's `latest` image and always pulls it when the service starts.
 
-`ComposeUpConfigFile` generates `compose-up.sh`. Run
-`bash compose-up.sh build` or `bash compose-up.sh pull` from the project root.
-Additional arguments are forwarded to `podman compose up`.
+`ComposeUpConfigFile` generates `compose-up.sh`. With the project's virtual
+environment activated (e.g.: via `uv run`), run `bash compose-up.sh build` or
+`bash compose-up.sh pull` from the project root. Additional arguments are
+forwarded to `podman-compose up`. Activating the project's environment is not
+necessary if `podman-compose` is installed system-wide and available on `PATH`.
 
 ### Container engine
 
 `ContainerEngine` wraps Podman. It provides the command arguments used to
 authenticate with a registry, to build and tag an image from the
 Containerfile, to save and load image archives, to push an individual tag, and
-to run Compose commands. It contributes a Podman badge to the project's README.
+to run Compose commands. It contributes `podman-compose` as a development
+dependency and a Podman badge to the project's README.
 
 ### Container registry
 

@@ -21,8 +21,8 @@ class ContainerEngine(Tool):
 
     @override
     def dev_dependencies(self) -> tuple[str, ...]:
-        """Return an empty tuple; `podman` is a system package, not a Python one."""
-        return ()
+        """Return `podman-compose` as a dev dependency; Podman is a system package."""
+        return (self.compose_provider(),)
 
     @override
     def group(self) -> str:
@@ -84,7 +84,7 @@ class ContainerEngine(Tool):
             compose_args: Additional arguments for the Compose provider.
 
         Returns:
-            Arguments for `podman compose up`.
+            Arguments for `podman-compose up`.
         """
         if compose_args is None:
             compose_args = Args()
@@ -177,7 +177,7 @@ class ContainerEngine(Tool):
             compose_args: Additional arguments for the Compose provider.
 
         Returns:
-            Arguments for `podman compose up`.
+            Arguments for `podman-compose up`.
         """
         if compose_args is None:
             compose_args = Args()
@@ -190,6 +190,10 @@ class ContainerEngine(Tool):
             *args: Arguments for the Compose provider.
 
         Returns:
-            Arguments for `podman compose`.
+            Arguments for `podman-compose`.
         """
-        return self.args("compose", *args)
+        return Args(self.compose_provider(), *args)
+
+    def compose_provider(self) -> str:
+        """Return the Compose provider for Podman."""
+        return f"{self.name()}-compose"

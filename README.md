@@ -83,17 +83,20 @@ uv run pyrig sync
 
 ## Requirements
 
-- `podman`
-- `podman-compose`
+In addition to pyrig's requirements, you will need:
 
-Run from the project root:
+- `podman` — the container engine used for building and running images.
+- `podman-compose` (optional) — only needed if you compose up outside of the
+project's virtual environment as this plugin automatically adds it to your
+development dependencies.
+
+Run from the project root. Run inside the project's virtual environment
+(e.g.: via `uv run`) if `podman-compose` is not on the system PATH:
 
 ```bash
 bash compose-up.sh build
 bash compose-up.sh pull
 ```
-
-Additional arguments are passed to `podman compose up`.
 
 This plugin targets Podman with `podman-compose`.
 We do not guarantee compatibility with Docker or other container engines.

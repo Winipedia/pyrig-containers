@@ -30,22 +30,24 @@ class TestContainerEngine:
     def test_compose_args(self) -> None:
         """Test method."""
         assert tuple(ContainerEngine.I.compose_args("--help")) == (
-            "podman",
-            "compose",
+            "podman-compose",
             "--help",
         )
+
+    def test_compose_provider(self) -> None:
+        """Test method."""
+        assert ContainerEngine.I.compose_provider() == "podman-compose"
 
     def test_compose_up_args(self) -> None:
         """Test method."""
         assert tuple(ContainerEngine.I.compose_up_args("--detach")) == (
-            "podman",
-            "compose",
+            "podman-compose",
             "up",
             "--detach",
         )
         assert tuple(
             ContainerEngine.I.compose_up_args("--detach", compose_args=Args("--quiet")),
-        ) == ("podman", "compose", "--quiet", "up", "--detach")
+        ) == ("podman-compose", "--quiet", "up", "--detach")
 
     def test_compose_up_files_args(self) -> None:
         """Test method."""
@@ -55,8 +57,7 @@ class TestContainerEngine:
                 files=(Path("compose.yml"), Path("compose.build.yml")),
             ),
         ) == (
-            "podman",
-            "compose",
+            "podman-compose",
             "--file=compose.yml",
             "--file=compose.build.yml",
             "up",
@@ -67,12 +68,11 @@ class TestContainerEngine:
                 files=(Path("compose.yml"),),
                 compose_args=Args("--quiet"),
             ),
-        ) == ("podman", "compose", "--file=compose.yml", "--quiet", "up")
+        ) == ("podman-compose", "--file=compose.yml", "--quiet", "up")
 
     def test_dev_dependencies(self) -> None:
         """Test method."""
-        result = ContainerEngine.I.dev_dependencies()
-        assert result == ()
+        assert ContainerEngine.I.dev_dependencies() == ("podman-compose",)
 
     def test_group(self) -> None:
         """Test method."""
