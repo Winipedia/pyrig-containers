@@ -46,6 +46,7 @@ def test_execute_compose_up(  # noqa: PLR0913
     args = Args(
         "env",
         env,
+        "PODMAN_COMPOSE_PROVIDER=podman-compose",
         "uvx",
         "--from=podman-compose",
         "bash",
@@ -58,6 +59,7 @@ def test_execute_compose_up(  # noqa: PLR0913
     Args(
         "env",
         env,
+        "PODMAN_COMPOSE_PROVIDER=podman-compose",
         "uvx",
         "--from=podman-compose",
         "podman",
@@ -69,6 +71,7 @@ def test_execute_compose_up(  # noqa: PLR0913
     ).run()
     logs = result.stdout + result.stderr
     assert result.returncode == usage_exit_code
+    assert 'Executing external compose provider "podman-compose"' in logs
     assert "A pyrig plugin to integrate containers." in logs
     assert expected_logs in logs, logs
     assert not_expected_logs not in logs, logs
