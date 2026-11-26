@@ -97,17 +97,22 @@ these Python settings and the uv settings apply when the container runs.
 ### Compose configuration
 
 `ComposeConfigFile` generates a root-level `compose.yml` with the package
-project name and a single `app` service. The service uses the project directory
-as its build context and relies on Podman's Compose provider to discover the
-`Containerfile` automatically. It drops all Linux capabilities and enables
-`no-new-privileges` at runtime.
+project name and a single `app` service. It drops all Linux capabilities and
+enables `no-new-privileges` at runtime. `ComposeBuildConfigFile` generates the
+`compose.build.yml` override, which builds the service from the `Containerfile`.
+`ComposePullConfigFile` generates the `compose.pull.yml` override, which selects
+the registry's `latest` image and always pulls it when the service starts.
+
+`ComposeUpConfigFile` generates `compose-up.sh`. Run
+`bash compose-up.sh build` or `bash compose-up.sh pull` from the project root.
+Additional arguments are forwarded to `podman compose up`.
 
 ### Container engine
 
 `ContainerEngine` wraps Podman. It provides the command arguments used to
 authenticate with a registry, to build and tag an image from the
-Containerfile, to save and load image archives, and to push an individual tag.
-It contributes a Podman badge to the project's README.
+Containerfile, to save and load image archives, to push an individual tag, and
+to run Compose commands. It contributes a Podman badge to the project's README.
 
 ### Container registry
 

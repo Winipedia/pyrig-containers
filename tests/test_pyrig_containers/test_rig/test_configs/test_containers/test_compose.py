@@ -4,7 +4,37 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, override
 
-from pyrig_containers.rig.configs.containers.compose import ComposeConfigFile
+from pyrig_containers.rig.configs.containers.compose import (
+    ComposeBuildConfigFile,
+    ComposeConfigFile,
+    ComposePullConfigFile,
+)
+
+
+class TestComposeAppOverrideConfigFile:
+    """Test class."""
+
+    def test__configs(self) -> None:
+        """Test method."""
+        assert ComposeBuildConfigFile.I._configs() == {  # noqa: SLF001
+            "services": {"app": {"build": {}}},
+        }
+
+    def test_service_app_settings(self) -> None:
+        """Test method."""
+        assert ComposeBuildConfigFile.I.service_app_settings() == {"build": {}}
+
+
+class TestComposeBuildConfigFile:
+    """Test class."""
+
+    def test_mode(self) -> None:
+        """Test method."""
+        assert ComposeBuildConfigFile.I.mode() == "build"
+
+    def test_service_app_settings(self) -> None:
+        """Test method."""
+        assert ComposeBuildConfigFile.I.service_app_settings() == {"build": {}}
 
 
 class TestComposeConfigFile:
@@ -16,7 +46,6 @@ class TestComposeConfigFile:
             "name": "pyrig-containers",
             "services": {
                 "app": {
-                    "build": {},
                     "cap_drop": ["ALL"],
                     "security_opt": ["no-new-privileges:true"],
                 },
@@ -26,6 +55,11 @@ class TestComposeConfigFile:
     def test_name(self) -> None:
         """Test method."""
         assert ComposeConfigFile.I.name() == "pyrig-containers"
+
+    def test_override_file(self) -> None:
+        """Test method."""
+        assert ComposeConfigFile.I.override_file("build") == Path("compose.build.yml")
+        assert ComposeConfigFile.I.override_file("pull") == Path("compose.pull.yml")
 
     def test_parent_path(self) -> None:
         """Test method."""
@@ -118,20 +152,22 @@ class TestComposeConfigFile:
         """Test method."""
         assert ComposeConfigFile.I.service_app() == {
             "service_name": "app",
-            "build": {},
             "cap_drop": ["ALL"],
             "security_opt": ["no-new-privileges:true"],
         }
 
+    def test_service_app_name(self) -> None:
+        """Test method."""
+        assert ComposeConfigFile.I.service_app_name() == "app"
+
     def test_service_app_settings(self) -> None:
         """Test method."""
-        assert ComposeConfigFile.I.service_app_settings() == {"build": {}}
+        assert ComposeConfigFile.I.service_app_settings() == {}
 
     def test_service_by_name(self) -> None:
         """Test method."""
         assert ComposeConfigFile.I.service_by_name(ComposeConfigFile.I.service_app) == {
             "app": {
-                "build": {},
                 "cap_drop": ["ALL"],
                 "security_opt": ["no-new-privileges:true"],
             },
@@ -164,7 +200,6 @@ class TestComposeConfigFile:
         compose = MultipleServices()
         expected = {
             "app": {
-                "build": {},
                 "cap_drop": ["ALL"],
                 "security_opt": ["no-new-privileges:true"],
             },
@@ -181,3 +216,39 @@ class TestComposeConfigFile:
     def test_stem(self) -> None:
         """Test method."""
         assert ComposeConfigFile.I.stem() == "compose"
+
+
+class TestComposeOverrideConfigFile:
+    """Test class."""
+
+    def test_extension(self) -> None:
+        """Test method."""
+        assert ComposeBuildConfigFile.I.extension() == "yml"
+        assert ComposeBuildConfigFile.I.path() == Path("compose.build.yml")
+
+    def test_mode(self) -> None:
+        """Test method."""
+        assert ComposeBuildConfigFile.I.mode() == "build"
+
+    def test_parent_path(self) -> None:
+        """Test method."""
+        assert ComposeBuildConfigFile.I.parent_path() == Path()
+
+    def test_stem(self) -> None:
+        """Test method."""
+        assert ComposeBuildConfigFile.I.stem() == "compose.build"
+
+
+class TestComposePullConfigFile:
+    """Test class."""
+
+    def test_mode(self) -> None:
+        """Test method."""
+        assert ComposePullConfigFile.I.mode() == "pull"
+
+    def test_service_app_settings(self) -> None:
+        """Test method."""
+        assert ComposePullConfigFile.I.service_app_settings() == {
+            "image": "ghcr.io/winipedia/pyrig-containers:latest",
+            "pull_policy": "always",
+        }

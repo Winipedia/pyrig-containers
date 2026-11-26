@@ -1,6 +1,7 @@
-"""Podman commands for building, archiving, loading, and publishing images."""
+"""Podman and Compose commands for managing container images and services."""
 
 from collections.abc import Iterable
+from pathlib import Path
 from typing import override
 
 from pyrig.core.subprocesses import Args
@@ -11,8 +12,9 @@ class ContainerEngine(Tool):
     """`podman` command wrapper.
 
     Constructs `podman` command arguments for authenticating with a registry
-    and building, archiving, loading, and pushing container images. Call
-    `login_args` to authenticate, `build_args` to build and tag the image,
+    and building, archiving, loading, and pushing container images. It also
+    constructs arguments for running Compose commands with selected files.
+    Call `login_args` to authenticate, `build_args` to build and tag the image,
     then `push_args` to publish each tag to the registry. Use `save_args` and
     `load_args` to transfer images between runners without rebuilding.
     """
@@ -68,6 +70,32 @@ class ContainerEngine(Tool):
         tag_args = (f"--tag={tag}" for tag in tags)
         return self.args("build", *tag_args, *args, context)
 
+    def compose_up_files_args(
+        self,
+        *args: str,
+        files: Iterable[Path],
+        compose_args: Args | None = None,
+    ) -> Args:
+        """Return Compose up arguments using the selected files.
+
+        Args:
+            *args: Arguments for the `up` command.
+            files: Compose files to include.
+            compose_args: Additional arguments for the Compose provider.
+
+        Returns:
+            Arguments for `podman compose up`.
+        """
+        if compose_args is None:
+            compose_args = Args()
+        return self.compose_up_args(
+            *args,
+            compose_args=Args(
+                *(f"--file={file.as_posix()}" for file in files),
+                *compose_args,
+            ),
+        )
+
     def load_args(self, *args: str, input_: str) -> Args:
         """Build args to load an image archive.
 
@@ -87,10 +115,7 @@ class ContainerEngine(Tool):
         username: str,
         password: str,
     ) -> Args:
-        """Build args to authenticate the container engine with a registry.
-
-        Constructs `podman login <registry> --username=<username>
-        --password=<password>`, appending `*args` at the end.
+        """Build arguments to authenticate with a container registry.
 
         Args:
             *args: Additional arguments appended to the command.
@@ -99,7 +124,7 @@ class ContainerEngine(Tool):
             password: Token or password for the account.
 
         Returns:
-            Args for the `podman login` command.
+            Arguments for `podman login`.
         """
         return self.args(
             "login",
@@ -143,3 +168,28 @@ class ContainerEngine(Tool):
             *args,
             image,
         )
+
+    def compose_up_args(self, *args: str, compose_args: Args | None = None) -> Args:
+        """Return arguments for the Compose up command.
+
+        Args:
+            *args: Arguments for the `up` command.
+            compose_args: Additional arguments for the Compose provider.
+
+        Returns:
+            Arguments for `podman compose up`.
+        """
+        if compose_args is None:
+            compose_args = Args()
+        return self.compose_args(*compose_args, "up", *args)
+
+    def compose_args(self, *args: str) -> Args:
+        """Return arguments for the Compose provider.
+
+        Args:
+            *args: Arguments for the Compose provider.
+
+        Returns:
+            Arguments for `podman compose`.
+        """
+        return self.args("compose", *args)

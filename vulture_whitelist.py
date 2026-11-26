@@ -1,11 +1,17 @@
 """Explicit references for reviewed dead code false positives."""
 
 from pyrig.rig.configs.base.config_file import ConfigFile
+from pyrig.rig.configs.base.shell import ShellConfigFile
 from pyrig.rig.configs.base.string_ import StringConfigFile
 from pyrig.rig.configs.base.workflow import WorkflowConfigFile
 from pyrig.rig.tools.base.tool import Tool
 
-from pyrig_containers.rig.configs.containers.compose import ComposeConfigFile
+from pyrig_containers.rig.configs.containers.compose import (
+    ComposeBuildConfigFile,
+    ComposeConfigFile,
+    ComposePullConfigFile,
+)
+from pyrig_containers.rig.configs.containers.compose_up import ComposeUpConfigFile
 from pyrig_containers.rig.configs.containers.file import ContainerfileConfigFile
 from pyrig_containers.rig.tools.containers.engine import ContainerEngine
 from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
@@ -16,12 +22,16 @@ _CONFIG_FILE_OVERRIDES = (
     ConfigFile.extension_separator,
     ConfigFile.parent_path,
     ConfigFile.stem,
+    ShellConfigFile.script,
     StringConfigFile.content,
     WorkflowConfigFile.concurrency_cancel_in_progress,
     WorkflowConfigFile.workflow_triggers,
 )
 _CONFIG_FILES = (
     ComposeConfigFile,
+    ComposeBuildConfigFile,
+    ComposePullConfigFile,
+    ComposeUpConfigFile,
     ContainerfileConfigFile,
 )
 _TOOLS = (

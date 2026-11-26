@@ -1,5 +1,9 @@
 """module."""
 
+from pathlib import Path
+
+from pyrig.core.subprocesses import Args
+
 from pyrig_containers.rig.tools.containers.engine import ContainerEngine
 
 
@@ -22,6 +26,48 @@ class TestContainerEngine:
             tags=("image:latest",),
         )
         assert str(extra_result) == "podman build --tag=image:latest --no-cache ."
+
+    def test_compose_args(self) -> None:
+        """Test method."""
+        assert tuple(ContainerEngine.I.compose_args("--help")) == (
+            "podman",
+            "compose",
+            "--help",
+        )
+
+    def test_compose_up_args(self) -> None:
+        """Test method."""
+        assert tuple(ContainerEngine.I.compose_up_args("--detach")) == (
+            "podman",
+            "compose",
+            "up",
+            "--detach",
+        )
+        assert tuple(
+            ContainerEngine.I.compose_up_args("--detach", compose_args=Args("--quiet")),
+        ) == ("podman", "compose", "--quiet", "up", "--detach")
+
+    def test_compose_up_files_args(self) -> None:
+        """Test method."""
+        assert tuple(
+            ContainerEngine.I.compose_up_files_args(
+                "--detach",
+                files=(Path("compose.yml"), Path("compose.build.yml")),
+            ),
+        ) == (
+            "podman",
+            "compose",
+            "--file=compose.yml",
+            "--file=compose.build.yml",
+            "up",
+            "--detach",
+        )
+        assert tuple(
+            ContainerEngine.I.compose_up_files_args(
+                files=(Path("compose.yml"),),
+                compose_args=Args("--quiet"),
+            ),
+        ) == ("podman", "compose", "--file=compose.yml", "--quiet", "up")
 
     def test_dev_dependencies(self) -> None:
         """Test method."""

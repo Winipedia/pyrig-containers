@@ -42,6 +42,10 @@ class ContainerRegistry(Tool):
         """Return `"ghcr"`."""
         return "ghcr"
 
+    def image_tag_latest(self) -> str:
+        """Return the project's image reference tagged `latest`."""
+        return self.image_tag("latest")
+
     def image_tag(self, tag: str) -> str:
         """Build the project's image reference for the given tag.
 

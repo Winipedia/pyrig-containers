@@ -180,7 +180,7 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         Returns:
             Image reference with the `latest` tag.
         """
-        return ContainerRegistry.I.image_tag("latest")
+        return ContainerRegistry.I.image_tag_latest()
 
     def container_image_tag_version(self) -> str:
         """Build the project's image reference tagged with the project version.

@@ -29,6 +29,13 @@ class TestContainerRegistry:
             == "ghcr.io/winipedia/pyrig-containers:v1.2.3"
         )
 
+    def test_image_tag_latest(self) -> None:
+        """Test method."""
+        assert (
+            ContainerRegistry.I.image_tag_latest()
+            == "ghcr.io/winipedia/pyrig-containers:latest"
+        )
+
     def test_image_url(self) -> None:
         """Test method."""
         assert ContainerRegistry.I.image_url() == (

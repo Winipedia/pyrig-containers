@@ -1,5 +1,6 @@
 """Compose configuration management."""
 
+from abc import abstractmethod
 from collections.abc import Callable
 from pathlib import Path
 from types import MethodType
@@ -7,6 +8,57 @@ from typing import Any, override
 
 from pyrig.rig.configs.base.yaml import YMLDictConfigFile
 from pyrig.rig.tools.packages.manager import PackageManager
+
+from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
+
+
+class ComposeOverrideConfigFile(YMLDictConfigFile):
+    """Configure a Compose override file for a specific mode."""
+
+    @abstractmethod
+    def mode(self) -> str:
+        """Return the Compose override mode."""
+
+    @override
+    def parent_path(self) -> Path:
+        """Return the directory containing the base Compose file."""
+        return ComposeConfigFile.I.parent_path()
+
+    @override
+    def stem(self) -> str:
+        """Return the override filename stem."""
+        return ComposeConfigFile.I.override_file(self.mode()).stem
+
+
+class ComposeAppOverrideConfigFile(ComposeOverrideConfigFile):
+    """Configure the app service for a specific Compose mode."""
+
+    @abstractmethod
+    def service_app_settings(self) -> dict[str, Any]:
+        """Return the app service settings for this mode."""
+
+    @override
+    def _configs(self) -> dict[str, Any]:
+        """Return the app service override."""
+        return {
+            "services": {
+                ComposeConfigFile.I.service_app_name(): self.service_app_settings(),
+            },
+        }
+
+
+class ComposeBuildConfigFile(ComposeAppOverrideConfigFile):
+    """Configure the app image to be built locally."""
+
+    @override
+    def mode(self) -> str:
+        """Return the build mode."""
+        return "build"
+
+    @override
+    def service_app_settings(self) -> dict[str, Any]:
+        """Return the app build settings."""
+        return {"build": {}}
 
 
 class ComposeConfigFile(YMLDictConfigFile):
@@ -31,6 +83,15 @@ class ComposeConfigFile(YMLDictConfigFile):
             "name": self.name(),
             "services": self.services_configs(),
         }
+
+    def override_file(self, mode: str) -> Path:
+        """Return the path to the Compose override for the selected mode."""
+        path = self.path()
+        return path.with_suffix(f".{mode}{path.suffix}")
+
+    def service_app_name(self) -> str:
+        """Return the app service name."""
+        return self.service_name(self.service_app)
 
     def name(self) -> str:
         """Return the Compose project name derived from the package manager."""
@@ -158,9 +219,7 @@ class ComposeConfigFile(YMLDictConfigFile):
 
     def service_app_settings(self) -> dict[str, Any]:
         """Return the default settings for the app service."""
-        return {
-            "build": {},
-        }
+        return {}
 
     def service_name(self, method: MethodType) -> str:
         """Derive a kebab-case service name from a `service_*` method."""
@@ -168,3 +227,20 @@ class ComposeConfigFile(YMLDictConfigFile):
             "_",
             "-",
         )
+
+
+class ComposePullConfigFile(ComposeAppOverrideConfigFile):
+    """Configure the app image to be pulled from the registry."""
+
+    @override
+    def mode(self) -> str:
+        """Return the pull mode."""
+        return "pull"
+
+    @override
+    def service_app_settings(self) -> dict[str, Any]:
+        """Return the app registry settings."""
+        return {
+            "image": ContainerRegistry.I.image_tag_latest(),
+            "pull_policy": "always",
+        }
