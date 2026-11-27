@@ -109,10 +109,10 @@ enables `no-new-privileges` at runtime. `ComposeBuildConfigFile` generates the
 `ComposePullConfigFile` generates the `compose.pull.yml` override, which selects
 the registry's `latest` image and always pulls it when the service starts.
 
-`ComposeUpConfigFile` generates `compose-up.sh`. With the project's virtual
-environment activated (e.g.: via `uv run`), run `bash compose-up.sh build` or
-`bash compose-up.sh pull` from the project root. Additional arguments are
-forwarded to `podman-compose up`. Activating the project's environment is not
+`ComposeUpConfigFile` generates `scripts/compose-up.sh`. With the project's virtual
+environment activated (e.g.: via `uv run`), run `bash scripts/compose-up.sh build`
+or `bash scripts/compose-up.sh pull` from the project root. Additional arguments
+are forwarded to `podman-compose up`. Activating the project's environment is not
 necessary if `podman-compose` is installed system-wide and available on `PATH`.
 
 ### Container engine

@@ -74,8 +74,8 @@ Run from the project root. Run inside the project's virtual environment
 (e.g.: via `uv run`) if `podman-compose` is not on the system PATH:
 
 ```bash
-bash compose-up.sh build
-bash compose-up.sh pull
+bash scripts/compose-up.sh build
+bash scripts/compose-up.sh pull
 ```
 
 This plugin targets Podman with `podman-compose`.
@@ -87,7 +87,7 @@ We do not guarantee compatibility with Docker or other container engines.
   root.
 - **Compose files** — a shared `compose.yml` and overrides for building locally
   or pulling the published image.
-- **Compose up script** — a `compose-up.sh` script to simplify running Compose
+- **Compose up script** — a `scripts/compose-up.sh` script to simplify running Compose
   commands with the correct files and arguments.
 - **Container tooling** — wrappers for the container engine (Podman) and the
   GitHub Container Registry, each contributing a badge.

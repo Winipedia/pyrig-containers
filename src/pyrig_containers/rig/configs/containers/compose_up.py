@@ -1,6 +1,5 @@
 """Generate the Compose startup script."""
 
-from pathlib import Path
 from typing import override
 
 from pyrig.core.subprocesses import Args
@@ -12,11 +11,6 @@ from pyrig_containers.rig.tools.containers.engine import ContainerEngine
 
 class ComposeUpConfigFile(ShellConfigFile):
     """Generate a script to start a locally built or published image."""
-
-    @override
-    def parent_path(self) -> Path:
-        """Return the project root."""
-        return Path()
 
     @override
     def script(self) -> str:

@@ -1,10 +1,10 @@
 """Test module."""
 
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
 from pyrig.core.subprocesses import Args
+from pyrig.rig.tools.linting.shell import ShellLinter
 
 from pyrig_containers.rig.configs.containers.compose_up import ComposeUpConfigFile
 
@@ -46,11 +46,12 @@ def test_execute_compose_up(  # noqa: PLR0913
     args = Args(
         "env",
         env,
-        "bash",
-        "compose-up.sh",
-        mode,
-        "--exit-code-from=app",
-        *extra_flags,
+        *ShellLinter.I.run_script_args(
+            mode,
+            "--exit-code-from=app",
+            *extra_flags,
+            file=ComposeUpConfigFile.I.path(),
+        ),
     )
     result = args.run(check=False)
     Args(
@@ -83,10 +84,6 @@ class TestComposeUpConfigFile:
             '"${@:2}"',
         )
 
-    def test_parent_path(self) -> None:
-        """Test method."""
-        assert ComposeUpConfigFile.I.parent_path() == Path()
-
     def test_script(self) -> None:
         """Test method."""
         assert (
@@ -103,3 +100,4 @@ class TestComposeUpConfigFile:
     def test_stem(self) -> None:
         """Test method."""
         assert ComposeUpConfigFile.I.stem() == "compose-up"
+        assert ComposeUpConfigFile.I.path().as_posix() == "scripts/compose-up.sh"
