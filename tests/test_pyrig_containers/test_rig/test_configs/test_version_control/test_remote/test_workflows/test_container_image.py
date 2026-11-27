@@ -14,11 +14,6 @@ class TestContainerImageWorkflowConfigFile:
         """Check the local image reference."""
         assert ContainerImageWorkflowConfigFile.I.build_image_tag() == ("image-tag")
 
-    def test_concurrency_cancel_in_progress(self) -> None:
-        """Check publishing is not cancelled by a subsequent call."""
-        workflow = ContainerImageWorkflowConfigFile.I
-        assert workflow.concurrency_cancel_in_progress() is False
-
     def test_container_image_tag_latest(self) -> None:
         """Test method."""
         assert (

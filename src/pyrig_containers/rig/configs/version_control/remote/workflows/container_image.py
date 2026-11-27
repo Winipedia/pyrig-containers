@@ -19,11 +19,6 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
     """Build and publish a container image to GHCR."""
 
     @override
-    def concurrency_cancel_in_progress(self) -> bool:
-        """Return `False`; image publishing must not be cancelled."""
-        return False
-
-    @override
     def jobs(self) -> tuple[Callable[[], dict[str, Any]], ...]:
         """Return the image build and publish jobs."""
         return (self.job_build, self.job_publish)

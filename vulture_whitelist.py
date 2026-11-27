@@ -24,7 +24,6 @@ _CONFIG_FILE_OVERRIDES = (
     ConfigFile.stem,
     ShellConfigFile.script,
     StringConfigFile.content,
-    WorkflowConfigFile.concurrency_cancel_in_progress,
     WorkflowConfigFile.workflow_triggers,
 )
 _CONFIG_FILES = (
