@@ -40,7 +40,6 @@ def test_execute_compose_up(  # noqa: PLR0913
     """Check that the script pulls or builds the app image."""
     if not on_linux:
         return
-    usage_exit_code = 2
     project = f"pyrigtest{uuid4().hex}"
     env = f"COMPOSE_PROJECT_NAME={project}"
     args = Args(
@@ -48,7 +47,6 @@ def test_execute_compose_up(  # noqa: PLR0913
         env,
         *ShellLinter.I.run_script_args(
             mode,
-            "--exit-code-from=app",
             *extra_flags,
             file=ComposeUpConfigFile.I.path(),
         ),
@@ -64,8 +62,7 @@ def test_execute_compose_up(  # noqa: PLR0913
         *cleanup_flags,
     ).run()
     logs = result.stdout + result.stderr
-    assert result.returncode == usage_exit_code
-    assert "A pyrig plugin to integrate containers." in logs
+    assert result.returncode == 0
     assert expected_logs in logs, logs
     assert not_expected_logs not in logs, logs
 
@@ -81,6 +78,10 @@ class TestComposeUpConfigFile:
             "--file=compose.yml",
             '--file=compose."${1}".yml',
             "up",
+            "--remove-orphans",
+            "--force-recreate",
+            "--wait",
+            "--detach",
             '"${@:2}"',
         )
 
@@ -93,6 +94,10 @@ class TestComposeUpConfigFile:
   --file=compose.yml \
   --file=compose."${1}".yml \
   up \
+  --remove-orphans \
+  --force-recreate \
+  --wait \
+  --detach \
   "${@:2}"
 """
         )

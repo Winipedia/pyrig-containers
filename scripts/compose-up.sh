@@ -6,4 +6,8 @@ exec \
   --file=compose.yml \
   --file=compose."${1}".yml \
   up \
+  --remove-orphans \
+  --force-recreate \
+  --wait \
+  --detach \
   "${@:2}"

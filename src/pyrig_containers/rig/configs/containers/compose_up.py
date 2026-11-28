@@ -26,7 +26,7 @@ class ComposeUpConfigFile(ShellConfigFile):
         """Return the arguments for the Compose up command."""
         return Args(
             "exec",
-            *ContainerEngine.I.compose_up_files_args(
+            *ContainerEngine.I.compose_up_production_args(
                 '"${@:2}"',
                 files=(
                     ComposeConfigFile.I.path(),

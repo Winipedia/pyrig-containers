@@ -48,6 +48,32 @@ class TestContainerEngine:
         assert tuple(
             ContainerEngine.I.compose_up_args("--detach", compose_args=Args("--quiet")),
         ) == ("podman-compose", "--quiet", "up", "--detach")
+        assert tuple(
+            ContainerEngine.I.compose_up_args(
+                remove_orphans=False,
+                force_recreate=False,
+                build=False,
+                wait=False,
+                detach=False,
+            ),
+        ) == ("podman-compose", "up")
+        assert tuple(
+            ContainerEngine.I.compose_up_args(
+                remove_orphans=True,
+                force_recreate=True,
+                build=True,
+                wait=True,
+                detach=True,
+            ),
+        ) == (
+            "podman-compose",
+            "up",
+            "--remove-orphans",
+            "--force-recreate",
+            "--build",
+            "--wait",
+            "--detach",
+        )
 
     def test_compose_up_files_args(self) -> None:
         """Test method."""
@@ -69,6 +95,40 @@ class TestContainerEngine:
                 compose_args=Args("--quiet"),
             ),
         ) == ("podman-compose", "--file=compose.yml", "--quiet", "up")
+
+    def test_compose_up_production_args(self) -> None:
+        """Test production Compose up arguments."""
+        assert tuple(
+            ContainerEngine.I.compose_up_production_args(
+                "--quiet",
+                files=(Path("compose.yml"), Path("compose.prod.yml")),
+            ),
+        ) == (
+            "podman-compose",
+            "--file=compose.yml",
+            "--file=compose.prod.yml",
+            "up",
+            "--remove-orphans",
+            "--force-recreate",
+            "--wait",
+            "--detach",
+            "--quiet",
+        )
+        assert tuple(
+            ContainerEngine.I.compose_up_production_args(
+                files=(Path("compose.yml"),),
+                compose_args=Args("--quiet"),
+            ),
+        ) == (
+            "podman-compose",
+            "--file=compose.yml",
+            "--quiet",
+            "up",
+            "--remove-orphans",
+            "--force-recreate",
+            "--wait",
+            "--detach",
+        )
 
     def test_dev_dependencies(self) -> None:
         """Test method."""

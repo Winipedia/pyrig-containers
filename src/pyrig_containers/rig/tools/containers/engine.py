@@ -70,30 +70,40 @@ class ContainerEngine(Tool):
         tag_args = (f"--tag={tag}" for tag in tags)
         return self.args("build", *tag_args, *args, context)
 
-    def compose_up_files_args(
+    def compose_up_production_args(
         self,
         *args: str,
         files: Iterable[Path],
         compose_args: Args | None = None,
     ) -> Args:
-        """Return Compose up arguments using the selected files.
+        """Return Compose up arguments for the production environment.
+
+        This adds the following flags to the Compose up command:
+            - `--remove-orphans`: Remove containers for services not defined in the
+                Compose files.
+            - `--force-recreate`: Recreate containers even if their configuration
+                and image haven't changed.
+            - `--wait`: Wait for containers to be healthy/ready.
+            - `--detach`: Run containers in the background.
 
         Args:
-            *args: Arguments for the `up` command.
-            files: Compose files to include.
+            *args: Additional arguments for the Compose up command.
+            files: Compose files to use for the production environment.
             compose_args: Additional arguments for the Compose provider.
 
         Returns:
-            Arguments for `podman-compose up`.
+            Arguments for `podman-compose up` with the production environment flags.
         """
         if compose_args is None:
             compose_args = Args()
-        return self.compose_up_args(
+        return self.compose_up_files_args(
             *args,
-            compose_args=Args(
-                *(f"--file={file.as_posix()}" for file in files),
-                *compose_args,
-            ),
+            files=files,
+            compose_args=compose_args,
+            remove_orphans=True,
+            force_recreate=True,
+            wait=True,
+            detach=True,
         )
 
     def load_args(self, *args: str, input_: str) -> Args:
@@ -169,11 +179,54 @@ class ContainerEngine(Tool):
             image,
         )
 
-    def compose_up_args(self, *args: str, compose_args: Args | None = None) -> Args:
+    def compose_up_files_args(
+        self,
+        *args: str,
+        files: Iterable[Path],
+        compose_args: Args | None = None,
+        **kwargs: bool,
+    ) -> Args:
+        """Return Compose up arguments using the selected files.
+
+        Args:
+            *args: Arguments for the `up` command.
+            files: Compose files to include.
+            compose_args: Additional arguments for the Compose provider.
+            **kwargs: Additional keyword arguments passed to the method.
+
+        Returns:
+            Arguments for `podman-compose up`.
+        """
+        if compose_args is None:
+            compose_args = Args()
+        return self.compose_up_args(
+            *args,
+            compose_args=Args(
+                *(f"--file={file.as_posix()}" for file in files),
+                *compose_args,
+            ),
+            **kwargs,
+        )
+
+    def compose_up_args(  # noqa: PLR0913
+        self,
+        *args: str,
+        remove_orphans: bool = False,
+        force_recreate: bool = False,
+        build: bool = False,
+        wait: bool = False,
+        detach: bool = False,
+        compose_args: Args | None = None,
+    ) -> Args:
         """Return arguments for the Compose up command.
 
         Args:
             *args: Arguments for the `up` command.
+            remove_orphans: If `True`, add the `--remove-orphans` flag.
+            force_recreate: If `True`, add the `--force-recreate` flag.
+            build: If `True`, add the `--build` flag.
+            wait: If `True`, add the `--wait` flag.
+            detach: If `True`, add the `--detach` flag.
             compose_args: Additional arguments for the Compose provider.
 
         Returns:
@@ -181,7 +234,25 @@ class ContainerEngine(Tool):
         """
         if compose_args is None:
             compose_args = Args()
-        return self.compose_args(*compose_args, "up", *args)
+
+        up_args = ()
+        if remove_orphans:
+            up_args = (*up_args, "--remove-orphans")
+        if force_recreate:
+            up_args = (*up_args, "--force-recreate")
+        if build:
+            up_args = (*up_args, "--build")
+        if wait:
+            up_args = (*up_args, "--wait")
+        if detach:
+            up_args = (*up_args, "--detach")
+
+        return self.compose_args(
+            *compose_args,
+            "up",
+            *up_args,
+            *args,
+        )
 
     def compose_args(self, *args: str) -> Args:
         """Return arguments for the Compose provider.
