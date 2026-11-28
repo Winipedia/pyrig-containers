@@ -3,11 +3,12 @@
 from abc import abstractmethod
 from collections.abc import Callable
 from pathlib import Path
-from types import MethodType
 from typing import Any, override
 
+from pyrig.core.strings import normalize_func_name
 from pyrig.rig.configs.base.yaml import YMLDictConfigFile
 from pyrig.rig.tools.packages.manager import PackageManager
+from pyrig_runtime.core.strings import snake_to_kebab_case
 
 from pyrig_containers.rig.tools.containers.registry import ContainerRegistry
 
@@ -123,7 +124,7 @@ class ComposeConfigFile(YMLDictConfigFile):
 
     def service(  # noqa: C901, PLR0912, PLR0913
         self,
-        method: MethodType,
+        method: Callable[[], dict[str, Any]],
         *,
         image: str | None = None,
         pull_policy: str | None = None,
@@ -221,11 +222,12 @@ class ComposeConfigFile(YMLDictConfigFile):
         """Return the default settings for the app service."""
         return {}
 
-    def service_name(self, method: MethodType) -> str:
+    def service_name(self, method: Callable[[], dict[str, Any]]) -> str:
         """Derive a kebab-case service name from a `service_*` method."""
-        return method.__name__.removeprefix(f"{self.service.__name__}_").replace(
-            "_",
-            "-",
+        return snake_to_kebab_case(
+            normalize_func_name(method).removeprefix(
+                f"{self.service.__name__}_",
+            ),
         )
 
 

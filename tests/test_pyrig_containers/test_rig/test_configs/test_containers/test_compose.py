@@ -175,10 +175,16 @@ class TestComposeConfigFile:
 
     def test_service_name(self) -> None:
         """Test method."""
+
+        def test_service_name_callable() -> dict[str, Any]:
+            """Test function."""
+            return {}
+
+        test_service_name_callable.__name__ = "test_service_name"
         assert (
             ComposeConfigFile.I.service_name(ComposeConfigFile.I.service_app) == "app"
         )
-        assert ComposeConfigFile.I.service_name(self.test_service_name) == (
+        assert ComposeConfigFile.I.service_name(test_service_name_callable) == (
             "test-service-name"
         )
 

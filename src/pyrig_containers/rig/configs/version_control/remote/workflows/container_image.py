@@ -6,7 +6,6 @@ Runs after a release and tags the image with both the release version and
 
 from collections.abc import Callable
 from pathlib import Path
-from types import MethodType
 from typing import Any, override
 
 from pyrig.rig.configs.base.workflow import WorkflowConfigFile
@@ -48,7 +47,7 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             timeout_minutes=60,
         )
 
-    def job_publish_needs(self) -> tuple[MethodType, ...]:
+    def job_publish_needs(self) -> tuple[Callable[[], dict[str, Any]], ...]:
         """Return the image build prerequisite."""
         return (self.job_build,)
 
