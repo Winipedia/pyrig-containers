@@ -69,37 +69,31 @@ class TestComposeConfigFile:
         """Test method."""
         compose = ComposeConfigFile.I
         assert ComposeConfigFile.I.service(
-            compose.service_app,
             build={},
             image="example",
         ) == {
-            "service_name": "app",
             "image": "example",
             "build": {},
             "cap_drop": ["ALL"],
             "security_opt": ["no-new-privileges:true"],
         }
         assert compose.service(
-            compose.service_app,
             image="example",
             pull_policy="always",
             build={},
         ) == {
-            "service_name": "app",
             "image": "example",
             "pull_policy": "always",
             "build": {},
             "cap_drop": ["ALL"],
             "security_opt": ["no-new-privileges:true"],
         }
-        assert compose.service(compose.service_app) == {
-            "service_name": "app",
+        assert compose.service() == {
             "cap_drop": ["ALL"],
             "security_opt": ["no-new-privileges:true"],
         }
 
         settings = ComposeConfigFile.I.service(
-            compose.service_app,
             security_opt=[],
             cap_drop=[],
             cap_add=["NET_BIND_SERVICE"],
@@ -122,7 +116,6 @@ class TestComposeConfigFile:
             build={},
         )
         expected = {
-            "service_name": "app",
             "image": "example",
             "pull_policy": "missing",
             "build": {},
@@ -146,12 +139,11 @@ class TestComposeConfigFile:
         }
         assert settings == expected
         assert list(settings) == list(expected)
-        assert compose.service(compose.service_app, cap_add=[])["cap_add"] == []
+        assert compose.service(cap_add=[])["cap_add"] == []
 
     def test_service_app(self) -> None:
         """Test method."""
         assert ComposeConfigFile.I.service_app() == {
-            "service_name": "app",
             "cap_drop": ["ALL"],
             "security_opt": ["no-new-privileges:true"],
         }
@@ -164,9 +156,9 @@ class TestComposeConfigFile:
         """Test method."""
         assert ComposeConfigFile.I.service_app_settings() == {}
 
-    def test_service_by_name(self) -> None:
+    def test_service_as_dict(self) -> None:
         """Test method."""
-        assert ComposeConfigFile.I.service_by_name(ComposeConfigFile.I.service_app) == {
+        assert ComposeConfigFile.I.service_as_dict(ComposeConfigFile.I.service_app) == {
             "app": {
                 "cap_drop": ["ALL"],
                 "security_opt": ["no-new-privileges:true"],
@@ -197,7 +189,7 @@ class TestComposeConfigFile:
 
         class MultipleServices(ComposeConfigFile):
             def service_database_server(self) -> dict[str, Any]:
-                return self.service(self.service_database_server, image="postgres")
+                return self.service(image="postgres")
 
             @override
             def services(self) -> tuple[Callable[[], dict[str, Any]], ...]:

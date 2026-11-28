@@ -10,8 +10,8 @@ class TestDeployWorkflowConfigFile:
 
     def test_job_container_image(self) -> None:
         """Check the workflow reference and forwarded permissions."""
-        job = DeployWorkflowConfigFile.I.job_container_image()
-        assert job["job_id"] == "container-image"
+        workflow = DeployWorkflowConfigFile.I
+        job = workflow.job_as_dict(workflow.job_container_image)["container-image"]
         assert job["uses"] == "$/.github/workflows/container-image.yml"
         assert job["permissions"] == {"contents": "read", "packages": "write"}
         assert "secrets" not in job

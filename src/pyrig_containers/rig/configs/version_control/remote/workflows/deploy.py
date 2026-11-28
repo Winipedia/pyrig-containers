@@ -27,6 +27,5 @@ class DeployWorkflowConfigFile(BaseDeployWorkflowConfigFile):
             Reusable workflow call job configuration.
         """
         return self.job_workflow_call(
-            self.job_container_image,
             workflow=ContainerImageWorkflowConfigFile,
         )

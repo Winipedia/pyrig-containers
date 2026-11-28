@@ -65,8 +65,6 @@ class ComposeBuildConfigFile(ComposeAppOverrideConfigFile):
 class ComposeConfigFile(YMLDictConfigFile):
     """The project's generated Compose configuration with runtime hardening."""
 
-    SERVICE_NAME_KEY = "service_name"
-
     @override
     def parent_path(self) -> Path:
         """Return the project root directory."""
@@ -103,16 +101,16 @@ class ComposeConfigFile(YMLDictConfigFile):
         return {
             name: settings
             for service in self.services()
-            for name, settings in self.service_by_name(service).items()
+            for name, settings in self.service_as_dict(service).items()
         }
 
-    def service_by_name(
+    def service_as_dict(
         self,
         service: Callable[[], dict[str, Any]],
     ) -> dict[str, dict[str, Any]]:
-        """Call a service builder and move its internal name to the mapping key."""
+        """Call a service builder and key its settings by the derived name."""
         settings = service()
-        return {settings.pop(self.SERVICE_NAME_KEY): settings}
+        return {self.service_name(service): settings}
 
     def services(self) -> tuple[Callable[[], dict[str, Any]], ...]:
         """Return the service builders for this Compose configuration."""
@@ -120,11 +118,18 @@ class ComposeConfigFile(YMLDictConfigFile):
 
     def service_app(self) -> dict[str, Any]:
         """Return the app service."""
-        return self.service(self.service_app, **self.service_app_settings())
+        return self.service(**self.service_app_settings())
+
+    def service_name(self, method: Callable[[], dict[str, Any]]) -> str:
+        """Derive a kebab-case service name from a `service_*` method."""
+        return snake_to_kebab_case(
+            normalize_func_name(method).removeprefix(
+                f"{self.service.__name__}_",
+            ),
+        )
 
     def service(  # noqa: C901, PLR0912, PLR0913
         self,
-        method: Callable[[], dict[str, Any]],
         *,
         image: str | None = None,
         pull_policy: str | None = None,
@@ -147,10 +152,9 @@ class ComposeConfigFile(YMLDictConfigFile):
         cap_add: list[str] | None = None,
         security_opt: list[str] | None = None,
     ) -> dict[str, Any]:
-        """Return a named service with ordered settings and hardening defaults.
+        """Return service settings with ordered keys and hardening defaults.
 
         Args:
-            method: The service method.
             image: Image name.
             pull_policy: Image pull policy.
             build: Build context or build configuration.
@@ -173,9 +177,9 @@ class ComposeConfigFile(YMLDictConfigFile):
             security_opt: Security options; defaults to `["no-new-privileges:true"]`.
 
         Returns:
-            Service settings containing the derived name under `SERVICE_NAME_KEY`.
+            Service settings; the name is derived during assembly.
         """
-        settings: dict[str, Any] = {self.SERVICE_NAME_KEY: self.service_name(method)}
+        settings: dict[str, Any] = {}
         if image is not None:
             settings["image"] = image
         if pull_policy is not None:
@@ -221,14 +225,6 @@ class ComposeConfigFile(YMLDictConfigFile):
     def service_app_settings(self) -> dict[str, Any]:
         """Return the default settings for the app service."""
         return {}
-
-    def service_name(self, method: Callable[[], dict[str, Any]]) -> str:
-        """Derive a kebab-case service name from a `service_*` method."""
-        return snake_to_kebab_case(
-            normalize_func_name(method).removeprefix(
-                f"{self.service.__name__}_",
-            ),
-        )
 
 
 class ComposePullConfigFile(ComposeAppOverrideConfigFile):

@@ -39,7 +39,6 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             Publish job configuration.
         """
         return self.job(
-            self.job_publish,
             needs=self.job_publish_needs(),
             environment=self.stem(),
             permissions=self.permissions_job_publish(),
@@ -58,21 +57,21 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             **self.permission("packages", write=True),
         }
 
-    def steps_publish(self) -> list[dict[str, Any]]:
+    def steps_publish(self) -> tuple[Callable[[], dict[str, Any]], ...]:
         """Prepare the version and image, then authenticate and push both tags.
 
         Returns:
             Ordered publish job steps.
         """
-        return [
+        return (
             *self.steps_core_setup(),
-            self.step_extract_version(),
-            self.step_download_image(),
-            self.step_load_image(),
-            self.step_login_container_registry(),
-            self.step_push_version(),
-            self.step_push_latest(),
-        ]
+            self.step_extract_version,
+            self.step_download_image,
+            self.step_load_image,
+            self.step_login_container_registry,
+            self.step_push_version,
+            self.step_push_latest,
+        )
 
     def job_build(self) -> dict[str, Any]:
         """Build and upload a single image archive.
@@ -81,7 +80,6 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             Build job configuration.
         """
         return self.job(
-            self.job_build,
             permissions=self.permissions_job_build(),
             steps=self.steps_build(),
             timeout_minutes=60,
@@ -94,7 +92,6 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             Artifact download step.
         """
         return self.step_download_artifact(
-            self.step_download_image,
             name=self.image_artifact_name(),
             path=self.image_archive_path().parent,
         )
@@ -106,7 +103,6 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             Image load step.
         """
         return self.step(
-            self.step_load_image,
             run=str(
                 ContainerEngine.I.load_args(
                     input_=self.image_archive_path().as_posix(),
@@ -125,7 +121,6 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         """
         actor_var, token_var = "ACTOR", "TOKEN"
         return self.step(
-            self.step_login_container_registry,
             run=ContainerEngine.I.login_args(
                 registry=ContainerRegistry.I.host(),
                 username=self.insert_parameter_expansion(actor_var),
@@ -144,7 +139,6 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             Step that runs `podman push` for the `latest` tag.
         """
         return self.step(
-            self.step_push_latest,
             run=ContainerEngine.I.push_args(
                 self.container_image_tag_latest(),
                 tag=self.build_image_tag(),
@@ -158,7 +152,6 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             Step that runs `podman push` for the versioned tag.
         """
         return self.step(
-            self.step_push_version,
             run=ContainerEngine.I.push_args(
                 self.container_image_tag_version(),
                 tag=self.build_image_tag(),
@@ -196,18 +189,18 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
         """Return read-only repository access for checkout."""
         return self.permission_contents()
 
-    def steps_build(self) -> list[dict[str, Any]]:
+    def steps_build(self) -> tuple[Callable[[], dict[str, Any]], ...]:
         """Check out the project, build the image, and upload its archive.
 
         Returns:
             Ordered build job steps.
         """
-        return [
-            self.step_checkout_repository(),
-            self.step_build_image(),
-            self.step_save_image(),
-            self.step_upload_image(),
-        ]
+        return (
+            self.step_checkout_repository,
+            self.step_build_image,
+            self.step_save_image,
+            self.step_upload_image,
+        )
 
     def step_build_image(self) -> dict[str, Any]:
         """Build a step that builds the container image.
@@ -218,7 +211,6 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             Step that runs `podman build`.
         """
         return self.step(
-            self.step_build_image,
             run=ContainerEngine.I.build_args(
                 tags=(self.build_image_tag(),),
             ).multiline(),
@@ -231,7 +223,6 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             Image save step.
         """
         return self.step(
-            self.step_save_image,
             run=ContainerEngine.I.save_args(
                 image=self.build_image_tag(),
                 output=self.image_archive_path().as_posix(),
@@ -245,7 +236,6 @@ class ContainerImageWorkflowConfigFile(WorkflowConfigFile):
             Artifact upload step.
         """
         return self.step_upload_artifact(
-            self.step_upload_image,
             name=self.image_artifact_name(),
             path=self.image_archive_path(),
         )

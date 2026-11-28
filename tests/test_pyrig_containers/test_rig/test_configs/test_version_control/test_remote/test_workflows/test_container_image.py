@@ -48,11 +48,11 @@ class TestContainerImageWorkflowConfigFile:
         workflow = ContainerImageWorkflowConfigFile.I
         job = workflow.job_build()
         timeout = 60
-        assert job["job_id"] == "build"
+        assert "build" in workflow.job_as_dict(workflow.job_build)
         assert job["permissions"] == {"contents": "read"}
         assert job["timeout-minutes"] == timeout
         assert "outputs" not in job
-        assert job["steps"] == workflow.steps_build()
+        assert job["steps"] == workflow.steps_configs(workflow.steps_build())
         assert "environment" not in job
         assert "needs" not in job
 
@@ -61,7 +61,7 @@ class TestContainerImageWorkflowConfigFile:
         workflow = ContainerImageWorkflowConfigFile.I
         config = workflow.job_publish()
         timeout = 60
-        assert config["job_id"] == "publish"
+        assert "publish" in workflow.job_as_dict(workflow.job_publish)
         assert config["environment"] == "container-image"
         assert config["timeout-minutes"] == timeout
         assert config["permissions"] == {
@@ -70,7 +70,7 @@ class TestContainerImageWorkflowConfigFile:
         }
         assert config["needs"] == ["build"]
         assert "if" not in config
-        assert config["steps"] == workflow.steps_publish()
+        assert config["steps"] == workflow.steps_configs(workflow.steps_publish())
 
     def test_job_publish_needs(self) -> None:
         """Check publishing depends on the build."""
@@ -184,7 +184,8 @@ class TestContainerImageWorkflowConfigFile:
 
     def test_steps_build(self) -> None:
         """Check build and archiving precede artifact upload."""
-        steps = ContainerImageWorkflowConfigFile.I.steps_build()
+        workflow = ContainerImageWorkflowConfigFile.I
+        steps = workflow.steps_configs(workflow.steps_build())
         assert [step["id"] for step in steps] == [
             "checkout-repository",
             "build-image",
@@ -194,7 +195,8 @@ class TestContainerImageWorkflowConfigFile:
 
     def test_steps_publish(self) -> None:
         """Test method."""
-        steps = ContainerImageWorkflowConfigFile.I.steps_publish()
+        workflow = ContainerImageWorkflowConfigFile.I
+        steps = workflow.steps_configs(workflow.steps_publish())
         ids = [step["id"] for step in steps]
         assert ids == [
             "checkout-repository",
